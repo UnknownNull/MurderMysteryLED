@@ -80,7 +80,6 @@ class Game implements Listener{
     public $murderer;
     public $detective;
     public $deadMurderer;
-    public $arrow;
 
     public function __construct(MurderMystery $plugin, array $file){
         $this->plugin = $plugin;
