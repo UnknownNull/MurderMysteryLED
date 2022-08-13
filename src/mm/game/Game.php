@@ -9,7 +9,6 @@ use pocketmine\item\ItemFactory;
 use pocketmine\item\ItemIds;
 
 use pocketmine\event\entity\{
-    EntityTeleportEvent,
     EntityDamageEvent,
     ProjectileHitBlockEvent,
     EntityDamageByEntityEvent,
@@ -49,7 +48,7 @@ use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 
 use mm\MurderMystery;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
-use mm\utils\{Vector, SwordEntity, SpawnPositionPacket};
+use mm\utils\{Vector, SwordEntity, SpawnPositionPacket, Event as EntityTeleportEvent};
 use pocketmine\entity\Location;
 use mm\tasks\{ArrowTask, CollideTask, CooldownTask, DespawnSwordEntity, SpawnGoldTask, UpdatePlayerPositionTask};
 
