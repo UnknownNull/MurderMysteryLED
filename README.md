@@ -1,4 +1,4 @@
-<a align="center"><img src="[https://raw.githubusercontent.com/DanteDEVS/MurderMysteryLED/main/logo.png](https://raw.githubusercontent.com/DanteDEVS/MurderMysteryLED/main/additional/icon.png)"></img></a>
+<a align="center"><img src="https://raw.githubusercontent.com/DanteDEVS/MurderMysteryLED/main/additional/icon.png"></img></a>
 # MurderMysteryLED
 An MurderMystery plugin mean't for pocketmine
 # Status
