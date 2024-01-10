@@ -31,6 +31,9 @@ WaitingStatus: §cWaiting for more players...
 # Starting status
 StartingStatus: Starting in {sec}s
 #
+# WaterdogPE support - if true when the player joins they will be joined to a random arena
+WaterDogPE-Support: false
+#
 # Min amount of players needed to start
 Minimum-players: 2
 #
@@ -39,6 +42,7 @@ Throwable-Sword-Speed: 1.4
 #
 # Scoreboard Title that gets displayed to players during a game
 Scoreboard-Title: §l§cMurder Mystery
+#
 # The scoreboard that gets displayed to players in the waiting lobby
 LobbyScoreboard: 
 - "§7§r"
