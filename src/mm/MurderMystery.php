@@ -6,7 +6,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\{CommandSender, Command};
 use pocketmine\player\Player;
 use pocketmine\event\Listener;
-use pocketmine\event\player\{PlayerInteractEvent, PlayerChatEvent};
+use pocketmine\event\player\{PlayerInteractEvent, PlayerChatEvent, PlayerJoinEvent};
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityFactory;
@@ -318,6 +318,13 @@ class MurderMystery extends PluginBase implements Listener{
         }
     }
 
+    public function onJoin(PlayerJoinEvent $event){
+        $player = $event->getPlayer();
+        if($this->getConfig()->get("WaterDogPE-Support") === true){
+            $this->joinGame($player);
+	}
+    }
+	
     public function onTouch(PlayerInteractEvent $event){
         $player = $event->getPlayer();
         $block = $event->getBlock();
