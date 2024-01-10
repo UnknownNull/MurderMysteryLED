@@ -860,9 +860,9 @@ class Game implements Listener{
         $this->giveArrow();
     }
 
-    public function dropItem(World $level, Item $item, Vector3 $pos, int $delay) : ?ItemEntity{
-        $delay = $this->plugin->getConfig()->get("GoldSpawnRate");
-        $level->dropItem($pos, $item, $delay);
+    public function dropItem(World $level, Item $item, Vector3 $pos, Vector3 $motion = null, int $delay): ?ItemEntity {
+	$delay = $this->plugin->getConfig()->get("GoldSpawnRate"); // this may not be right...
+        return $level->dropItem($pos, $item, $motion, $delay);
     }
 
     public function unsetSpectator($player){
