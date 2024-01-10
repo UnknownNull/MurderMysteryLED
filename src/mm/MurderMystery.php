@@ -8,7 +8,7 @@ use pocketmine\player\Player;
 use pocketmine\event\Listener;
 use pocketmine\item\VanillaItems;
 use pocketmine\block\VanillaBlocks;
-use pocketmine\event\player\{PlayerInteractEvent, PlayerChatEvent, PlayerJoinEvent, PlayerItemUseEvent};
+use pocketmine\event\player\{PlayerInteractEvent, PlayerChatEvent, PlayerJoinEvent, PlayerItemUseEvent, PlayerDropItemEvent};
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityFactory;
@@ -348,11 +348,33 @@ class MurderMystery extends PluginBase implements Listener{
                    $this->setupForm($player);
                 break;
                 case "§r§l§cLeave / Done":
+                  $player->getInventory()->clearAll();
                   $player->sendMessage($this->prefix . "§7You have left setup mode");
                   unset($this->editors[$player->getName()]);
                   if(isset($this->setupData[$player->getName()])){
                      unset($this->setupData[$player->getName()]);
                   }
+                  $player->teleport($this->getServer()->getWorldManager()->getDefaultWorld()->getSafeSpawn());
+                break;
+            }
+        }
+    }
+
+    public function onDropItem(PlayerDropItemEvent $ev){
+        $player = $ev->getPlayer();
+        $customName = $event->getItem()->getCustomName();
+        $item = $event->getItem();
+        if(isset($this->editors[$player->getName()])){
+            $game = $this->editors[$player->getName()];
+            switch($customName){
+                case "§r§l§aComplete":
+                   $ev->cancel();
+                break;
+                case "§r§l§6Setup":
+                   $ev->cancel();
+                break;
+                case "§r§l§cLeave / Done":
+                  $ev->cancel();
                 break;
             }
         }
