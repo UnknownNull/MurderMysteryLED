@@ -1,18 +1,18 @@
 <a align="center"><img src="https://raw.githubusercontent.com/DanteDEVS/MurderMysteryLED/main/logo.png"></img></a>
 # MurderMysteryLED
-MurderMystery PM3 to PM4
+An MurderMystery plugin mean't for pocketmine
 # Status
 - **NEEDS TO BE TESTED**
-
 I am not sure yet if the plugin is ready!
+
 # The Basics Todo-List
 - [X] Scoreboard
-- [ ] BossBar 
+- [ ] BossBar - Will be done soon
 - [X] The Basics of MurderMystery
 - [X] Commands & Permissions
 # Entity Todo-List
 - [X] Throwable-Sword
-- [ ] Dead Body Entity
+- [ ] Dead Body Entity - ???
 # Commands Todo-List
 - [X] Join Command (the join command is also basically the random cmd)
 - [ ] Quit Command 
@@ -20,9 +20,6 @@ I am not sure yet if the plugin is ready!
 - [X] Create Command
 - [X] Delete Arenas Command
 - [X] List of Arenas Command 
-} else { // permissions
-- [X] Op Permission (permission to all commands (including the setup commands))
-- [X] NoOp Permission (permission to all commands (not including setup commands))
 # Issues or suggestions
 Pls report issues at The issues tab in github, you can also suggest a suggestion at the issues tab
 # Pull Request
@@ -31,9 +28,9 @@ if you wanna help transfer this plugin to PM4, open a pull request, if the pull 
 **Orignal Author**
 - LeyKey is the Orignal Owner of this project
 # PM3 TO PM4 A
-**PM3 TO PM4 Authors**
-- DanteDevs he did transfer the plugin to pm4
-- ItsToxicGG did the entity transfer to pm4 (thanks, i strgg)
+**PM3 TO PM5 Authors**
+- DanteDevs - Transferred API 3.0.0 - 5.0.0
+- ItsToxicGG - Helped out Transferring API 3.0.0 - 5.0.0
 # Contributers
 **Contributed To The Project**
 - fernanACM did contributed to help fix bugs
