@@ -474,7 +474,7 @@ class Game implements Listener{
         $this->phase = self::PHASE_RESTART;
 
         foreach($this->map->getEntities() as $entity){
-            if(!$entity instanceof SwordEntity && !$entity instanceof Arrow){
+            if($entity instanceof SwordEntity && $entity instanceof Arrow){
                 $entity->close();
             }
         }
@@ -720,7 +720,6 @@ class Game implements Listener{
             $player->getCursorInventory()->clearAll();
             $this->getSpectatorCore($player);
             unset($this->changeInv[$player->getName()]);
-            $player->getEffects()->all()->clear();
             $player->setGamemode(GameMode::SPECTATOR());
 
             foreach($this->players as $ingame){
