@@ -16,7 +16,8 @@ use pocketmine\event\entity\{
     ProjectileLaunchEvent,
     EntityInventoryChangeEvent,
     EntityItemPickupEvent,
-    EntityTeleportEvent
+    EntityTeleportEvent,
+    ProjectileHitEntityEvent
 };
 
 use pocketmine\event\player\{
@@ -486,6 +487,21 @@ class Game implements Listener{
         return isset($this->players[$player->getName()]);
     }
 
+    public function onProjectileHitEntity(ProjectileHitEntityEvent $event){
+        $damage = $event->getEntity();
+        $entity = $event->getEntityHit();
+        if($damage instanceof Arrow){
+            if($entity instanceof Player){
+                if($this->isPlaying($entity)){
+                    if(!isset($this->shooter)){
+                       $this->playerKillPlayer($this->shooter, $player);
+                    }
+                }
+            }
+        }
+    }
+
+
     public function onInteract(PlayerInteractEvent $event, Location $location){
         $player = $event->getPlayer();
         $block = $event->getBlock();
@@ -502,7 +518,7 @@ class Game implements Listener{
             }
             if($item === VanillaItems::IRON_SWORD()){
                 if(!isset($this->cooldown[$player->getName()])){
-                    if($this->phase == 1){
+                    if($this->phase == self::PHASE_GAME){
                         $this->createSwordEntity($player);
                     }
                 }
