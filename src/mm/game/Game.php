@@ -497,10 +497,10 @@ class Game implements Listener{
                 $event->cancel();
                 return;
             }
-            if($event->getItem()->getTypeId() == 20019){
+            if($item === VanillaItems::BOW()){
                 $this->shooter = $player;
             }
-            if($event->getItem()->getTypeId() == 20138){
+            if($item === VanillaItems::IRON_SWORD()){
                 if(!isset($this->cooldown[$player->getName()])){
                     if($this->phase == 1){
                         $this->createSwordEntity($player);
