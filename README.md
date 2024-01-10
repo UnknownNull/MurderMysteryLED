@@ -1,6 +1,8 @@
 <a align="center"><img src="https://raw.githubusercontent.com/DanteDEVS/MurderMysteryLED/main/additional/icon.png"></img></a>
 # MurderMysteryLED
 An MurderMystery plugin mean't for pocketmine
+# Setup
+[Click here to be redirected to the setup video](somethingsoon)
 # Status
 - **NEEDS TO BE TESTED**
 I am not sure yet if the plugin is ready!
