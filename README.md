@@ -4,8 +4,7 @@ An MurderMystery plugin mean't for pocketmine
 # Setup
 [Click here to be redirected to the setup video](https://youtu.be/WtCOuMJkXbI)
 # Status
-- **NEEDS TO BE TESTED**
-I am not sure yet if the plugin is ready!
+- **WIP/Work-In-Progress**
 
 # The Basics Todo-List
 - [X] Scoreboard
