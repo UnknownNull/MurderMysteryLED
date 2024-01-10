@@ -6,6 +6,7 @@ use pocketmine\event\Listener;
 use pocketmine\block\Block;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\item\Item;
+use pocketmine\entity\object\ItemEntity;
 
 use pocketmine\event\entity\{
     EntityDamageEvent,
@@ -750,7 +751,7 @@ class Game implements Listener{
                         }
                     }
 
-                    $this->dropItem($this->map, 261, $player);
+                    $this->dropItem($this->map, VanillaItems::BOW(), $player);
                 }
             }
             $this->disconnectPlayer($player);
