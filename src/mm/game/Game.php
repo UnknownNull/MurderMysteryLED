@@ -493,7 +493,7 @@ class Game implements Listener{
         if($damage instanceof Arrow){
             if($entity instanceof Player){
                 if($this->isPlaying($entity)){
-                    if(!isset($this->shooter)){
+                    if(isset($this->shooter)){
                        $this->playerKillPlayer($this->shooter, $player);
                     }
                 }
