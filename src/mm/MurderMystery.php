@@ -6,6 +6,8 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\{CommandSender, Command};
 use pocketmine\player\Player;
 use pocketmine\event\Listener;
+use pocketmine\item\VanillaItems;
+use pocketmine\block\VanillaBlocks;
 use pocketmine\event\player\{PlayerInteractEvent, PlayerChatEvent, PlayerJoinEvent, PlayerItemUseEvent};
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\entity\Entity;
@@ -197,7 +199,7 @@ class MurderMystery extends PluginBase implements Listener{
 		    $sender->sendMessage("This is Comming Soon pls try again soon!");
                 break;
 			    
-                case "join":
+                case "join": // item
 		    if($sender->hasPermission("murdermystery.noop")){
 			    
 		    }
@@ -304,8 +306,6 @@ class MurderMystery extends PluginBase implements Listener{
     //         }
     //     }
     // }
-
-    use pocketmine\item\Item;
 
     public function giveSetupItems(Player $player): void {
         $player->getInventory()->clearAll();
