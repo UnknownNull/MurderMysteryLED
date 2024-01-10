@@ -17,8 +17,8 @@ class CooldownTask extends Task{
     public function onRun(): void{
         foreach($this->plugin->players as $player){
             if(isset($this->plugin->cooldown[$player->getName()])){
-                $item = $player->getInventory()->getItemInHand()->getId();
-                if($item == \pocketmine\item\ItemIds::BOW && $this->plugin->getDetective() === $player or $item == \pocketmine\item\ItemIds::IRON_SWORD){
+                $item = $player->getInventory()->getItemInHand()->getTypeId();
+                if($item == 20019 && $this->plugin->getDetective() === $player or $item == 20138){
                     $time = (int) $this->plugin->cooldown[$player->getName()];
                     $timeLeft = $time - microtime(true);
                     if($time > microtime(true)){

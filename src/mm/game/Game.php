@@ -4,9 +4,8 @@ namespace mm\game;
 
 use pocketmine\event\Listener;
 use pocketmine\block\Block;
+use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\item\Item;
-use pocketmine\item\ItemFactory;
-use pocketmine\item\ItemIds;
 
 use pocketmine\event\entity\{
     EntityDamageEvent,
@@ -15,7 +14,8 @@ use pocketmine\event\entity\{
     EntityDamageByChildEntityEvent,
     ProjectileLaunchEvent,
     EntityInventoryChangeEvent,
-    EntityItemPickupEvent
+    EntityItemPickupEvent,
+    EntityTeleportEvent
 };
 
 use pocketmine\event\player\{
@@ -41,6 +41,9 @@ use pocketmine\math\Vector3;
 use pocketmine\entity\Entity;
 use pocketmine\nbt\tag\StringTag;
 
+use pocketmine\item\{VanillaItems};
+use pocketmine\block\{VanillaBlocks};
+
 use pocketmine\network\mcpe\protocol\RemoveObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetDisplayObjectivePacket;
 use pocketmine\network\mcpe\protocol\SetScorePacket;
@@ -48,7 +51,7 @@ use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 
 use mm\MurderMystery;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
-use mm\utils\{Vector, SwordEntity, SpawnPositionPacket, Event as EntityTeleportEvent};
+use mm\utils\{Vector, SwordEntity};
 use pocketmine\entity\Location;
 use mm\tasks\{ArrowTask, CollideTask, CooldownTask, DespawnSwordEntity, SpawnGoldTask, UpdatePlayerPositionTask};
 
@@ -126,16 +129,16 @@ class Game implements Listener{
         $entry = new ScorePacketEntry();
         $packet = new SetScorePacket();
 
-        if(count($this->players) < 2){
+        if(count($this->players) < $this->plugin->getConfig()->get("Minimum-players")){
             $status = str_replace("{sec}", $this->task->startTime, $this->plugin->getConfig()->get("WaitingStatus"));
         } else {
             $status = $this->plugin->getConfig()->get("StartingStatus");
         }
 
         $msg = str_replace([
-            "{players}", "{innocents}", "{detec_status}", "{role}", "{map}", "{status}"
+            "{players}", "{innocents}", "{detec_status}", "{role}", "{map}", "{time}","{status}"
         ], [
-            count($this->players), (count($this->players) - 1), $this->getDetectiveStatus(), $this->getRole($player), $this->map->getFolderName(), $status
+            count($this->players), (count($this->players) - 1), $this->getDetectiveStatus(), $this->getRole($player), $this->map->getFolderName(), TimeUtils::intToString($this->task->gameTime), $status
         ], $msg);
 
         $entry->objectiveName = "MurderMystery";
@@ -165,15 +168,15 @@ class Game implements Listener{
             $this->removeScoreboard($player);
             switch($this->phase){
                 case Game::PHASE_GAME:
-                    $this->createScoreboard($player, "§l§cMurder Mystery", $this->plugin->getConfig()->get("GameScoreboard"));
+                    $this->createScoreboard($player, $this->plugin->getConfig()->get("Scoreboard-Title"), $this->plugin->getConfig()->get("GameScoreboard"));
                 break;
 
                 case Game::PHASE_RESTART:
-                    $this->createScoreboard($player, "§l§cMurder Mystery", $this->plugin->getConfig()->get("RestartScoreboard"));
+                    $this->createScoreboard($player, $this->plugin->getConfig()->get("Scoreboard-Title"), $this->plugin->getConfig()->get("RestartScoreboard"));
                 break;
 
                 case Game::PHASE_LOBBY:
-                    $this->createScoreboard($player, "§l§cMurder Mystery", $this->plugin->getConfig()->get("LobbyScoreboard"));
+                    $this->createScoreboard($player, $this->plugin->getConfig()->get("Scoreboard-Title"), $this->plugin->getConfig()->get("LobbyScoreboard"));
                 break;
             }
         }
@@ -252,14 +255,14 @@ class Game implements Listener{
     public function getCoreItems(Player $player){
         $inv = $player->getInventory();
 
-        $lobby = \pocketmine\item\ItemFactory::getInstance()->get(355, 14, 1);
+        $lobby = VanillaBlocks::BED()->asItem();
         $lobby->setCustomName("§r§l§cBack to lobby§r");
 
-        $start = \pocketmine\item\ItemFactory::getInstance()->get(76, 0, 1);
+        $start = VanillaBlocks::POPPY()->asItem();
         $start->setCustomName("§r§l§bStart Game§r");
 
         $inv->setItem(8, $lobby);
-        if($player->hasPermission("murdermystery.forcestart")){
+        if($player->hasPermission("murdermystery.forcestart")){ // dropItem - Unrelated
             if($this->task->startTime > 10){
                 $inv->setItem(4, $start);
             }
@@ -269,10 +272,10 @@ class Game implements Listener{
     public function getSpectatorCore(Player $player){
         $inv = $player->getInventory();
 
-        $lobby = \pocketmine\item\ItemFactory::getInstance()->get(355, 14, 1);
+        $lobby = VanillaBlocks::BED()->asItem();
         $lobby->setCustomName("§r§l§cBack to lobby§r");
 
-        $tp = \pocketmine\item\ItemFactory::getInstance()->get(345, 14, 1);
+        $tp = VanillaItems::COMPASS();
         $tp->setCustomName("§r§l§aTeleporter§r");
 
         $inv->setItem(8, $lobby);
@@ -347,27 +350,19 @@ class Game implements Listener{
     }
 
     public function giveRoles(){
-        $innocents = [];
-        foreach($this->players as $player){
-            $innocents[$player->getName()] = $player;
-        }
+        $innocents = $this->players;
+
+        $murdererIndex = array_rand($innocents);
+        $this->murderer = $innocents[$murdererIndex];
+        unset($innocents[$murdererIndex]);
+
+        $detectiveIndex = array_rand($innocents);
+        $this->detective = $innocents[$detectiveIndex];
+        unset($innocents[$detectiveIndex]);
+    
+        $this->broadcastTitle($this->murderer, "§cYOU ARE THE MURDERER", "§6GOAL: §eKill all players!");
+        $this->broadcastTitle($this->detective, "§bYOU ARE THE DETECTIVE", "§6GOAL: §eFind and stop the Murderer!");
         
-        while(empty($innocents)) {
-            foreach($this->players as $player) {
-                $innocents[$player->getName()] = $player;
-            }
-        }
-
-        $murderer = $innocents[array_rand($innocents)];
-        $this->murderer = $murderer;
-        unset($innocents[$murderer->getName()]);
-
-        $detective = $innocents[array_rand($innocents)];
-        $this->detective = $detective;
-        unset($innocents[$detective->getName()]);
-
-        $this->broadcastTitle($murderer, "§cYOU ARE THE MURDERER", "§6GOAL: §eKill all players!");
-        $this->broadcastTitle($detective, "§bYOU ARE THE DETECTIVE", "§6GOAL: §eFind and kill the Murderer!");
         foreach($innocents as $innocent){
             $this->broadcastTitle($innocent, "§aYOU ARE INNOCENT", "§6GOAL: §eStay alive as long as possible!");
         }
@@ -377,8 +372,8 @@ class Game implements Listener{
         $murderer = $this->getMurderer();
         $detective = $this->getDetective();
 
-        $this->setItem(267, 1, $murderer, "§aKnife");
-        $this->setItem(261, 1, $detective, "§aBow");
+        $this->setItem(VanillaItems::IRON_SWORD(), 1, $murderer, "§aKnife");
+        $this->setItem(VanillaItems::BOW(), 1, $detective, "§aBow");
 
         if($this->isPlayer($murderer)){
             $murderer->getInventory()->setHeldItemIndex(0);
@@ -410,14 +405,17 @@ class Game implements Listener{
         }
     }
 
-    public function setItem(int $id, int $slot, $player, string $name = null){
+    // usage =
+    public function setItem(Item $item, int $slot, $player, string $name = null){
         if($this->isPlayer($player)){
             $this->changeInv[$player->getName()] = $player->getName();
-            $item = \pocketmine\item\ItemFactory::getInstance()->get($id, 0, 1);
+            
             if($name != null){
                 $item->setCustomName("§r" . $name);
             }
+
             $player->getInventory()->setItem($slot, $item);
+            
             unset($this->changeInv[$player->getName()]);
         }
     }
@@ -434,7 +432,7 @@ class Game implements Listener{
     }
 
     public function giveArrow(){
-        $this->setItem(262, 9, $this->getDetective());
+        $this->setItem(VanillaItems::ARROW(), 9, $this->getDetective());
     }
 
     public function murdererWin(){
@@ -493,14 +491,14 @@ class Game implements Listener{
         $item = $event->getItem();
 
         if($this->isPlaying($player)){
-            if($block->getId() == \pocketmine\block\BlockLegacyIds::CHEST or $block->getId() == \pocketmine\block\BlockLegacyIds::CRAFTING_TABLE or $block->getId() == \pocketmine\block\BlockLegacyIds::TRAPDOOR or $block->getId() == \pocketmine\block\BlockLegacyIds::ANVIL or $block->getId() == \pocketmine\block\BlockLegacyIds::BED_BLOCK){
+            if($block->getTypeId() == 10072 or $block->getTypeId() == 10094 or $block->getTypeId() == 10384 or $block->getTypeId() == 10023 or $block->getTypeId() == 10031){
                 $event->cancel();
                 return;
             }
-            if($event->getItem()->getId() == \pocketmine\item\ItemIds::BOW){
+            if($event->getItem()->getTypeId() == 20019){
                 $this->shooter = $player;
             }
-            if($event->getItem()->getId() == \pocketmine\item\ItemIds::IRON_SWORD){
+            if($event->getItem()->getTypeId() == 20138){
                 if(!isset($this->cooldown[$player->getName()])){
                     if($this->phase == 1){
                         $this->createSwordEntity($player);
@@ -581,22 +579,51 @@ class Game implements Listener{
         $this->removeScoreboard($player);
     }
 
-    public function onLevelChange(EntityTeleportEvent $event){
+    public function onTeleport(EntityTeleportEvent $event) {
         $player = $event->getEntity();
-        if($player instanceof Player){
-            if($this->isPlaying($player)){
-                if($this->phase == 0){
-                    $this->disconnectPlayer($player, "§e" . $player->getName() . " has left (§b" . (count($this->players) - 1) . "§e/§b16§e)");
-                } else {
-                    $this->disconnectPlayer($player, "§7" . $player->getName() . " disconnected.");
+        $lastWorld = $event->getFrom()->getWorld()->getFolderName();
+        $currentWorld = $event->getTo()->getWorld()->getFolderName();
+    
+        if ($currentWorld !== $lastWorld) {
+            if ($player instanceof Player) {
+                if ($this->isPlaying($player)) {
+                    if ($this->phase == 0) {
+                        $this->disconnectPlayer($player, "§e" . $player->getName() . " has left (§b" . (count($this->players) - 1) . "§e/§b16§e)");
+                    } else {
+                        $this->disconnectPlayer($player, "§7" . $player->getName() . " disconnected.");
+                    }
                 }
+    
+                if (isset($this->spectators[$player->getName()])) {
+                    $this->unsetSpectator($player);
+                }
+    
+                $this->removeScoreboard($player);
             }
-            if(isset($this->spectators[$player->getName()])){
-                $this->unsetSpectator($player);
-            }
-            $this->removeScoreboard($player);
         }
     }
+
+    public function onItemUse(PlayerItemUseEvent $event){
+        $player = $event->getPlayer();
+        $customName = $event->getItem()->getCustomName();
+        $item = $event->getItem();
+        if($this->isPlaying($player)){
+            switch($customName){
+            case "§r§l§cBack to lobby§r":
+               $this->removeFromGame($player);
+               break;
+            case "§r§l§aTeleporter§r":
+                if($this->phase == 1){
+                    $this->openTeleporter($player);
+                }
+               break;
+            case "§r§l§bStart Game§r":
+                // forgot logic? WIP
+                break;
+            }
+        }
+    }
+    
 
     public function onShoot(ProjectileLaunchEvent $event){
         if(!isset($this->shooter)){
@@ -611,7 +638,7 @@ class Game implements Listener{
         if($event->getEntity() instanceof Arrow){
             $detective = $this->getDetective();
             $this->arrow = time();
-            $arrow = \pocketmine\item\ItemFactory::getInstance()->get(262, 0, 1);
+            $arrow = VanillaItems::ARROW();
             $this->changeInv[$this->shooter->getName()] = $this->shooter->getName();
             $this->shooter->getInventory()->removeItem($arrow);
             unset($this->changeInv[$this->shooter->getName()]);
@@ -639,14 +666,14 @@ class Game implements Listener{
         }
     }
 
-    public function onDamage(EntityDamageEvent $event){
+    public function onDamage(EntityDamageEvent $event){ // onInteract -- unrelated
         $player = $event->getEntity();	    
         if($player instanceof Player){
             if($this->isPlaying($player)){
                 if($event instanceof EntityDamageByEntityEvent){
                     $murderer = $event->getDamager();
                     if($murderer === $this->getMurderer()){
-                        if($murderer instanceof Player && $murderer->getInventory()->getItemInHand()->getId() == \pocketmine\item\ItemIds::IRON_SWORD){
+                        if($murderer instanceof Player && $murderer->getInventory()->getItemInHand()->getTypeId() == 20138){
                             $this->killPlayer($player);
                         }
                     }
@@ -678,7 +705,7 @@ class Game implements Listener{
         if(isset($this->spectators[$player->getName()])){
             $event->cancel();
             foreach($this->spectators as $spectator){
-                $spectator->sendMessage("§7[Spectator] " . $player->getName() . ": " . $event->getMessage());
+                $spectator->sendMessage("§7Dead Chat " . $player->getName() . ">> " . $event->getMessage());
             }
         }
     }
@@ -727,7 +754,7 @@ class Game implements Listener{
             }
             $this->disconnectPlayer($player);
             if(count($this->players) == 2){
-                $this->setItem(345, 4, $this->getMurderer());
+                $this->setItem(VanillaItems::COMPASS(), 4, $this->getMurderer());
                 foreach($this->players as $player){
                     if($player !== $this->getMurderer()){
                         $player->sendTitle("§cWatch out!", "§eThe murderer got a compass!");
@@ -740,18 +767,13 @@ class Game implements Listener{
         $this->checkPlayers();
     }
 
-    public function setSpawnPositionPacket(Player $player, Vector3 $pos){
-        $pk = new SpawnPositionPacket();
-        $pk->x = $pos->getFloorX();
-        $pk->z = $pos->getFloorY();
-        $pk->y = $pos->getFloorZ();
-        $pk->x2 = $pos->getFloorX();
-        $pk->y2 = $pos->getFloorY();
-        $pk->z2 = $pos->getFloorZ();
+    public function setSpawnPositionPacket(Player $player, Vector3 $pos){ // SpawnPositionPacket
+        $pk = new SetSpawnPositionPacket();
+        
         $pk->dimension = DimensionIds::OVERWORLD;
-        $pk->spawnType = SpawnPositionPacket::TYPE_WORLD_SPAWN;
+        $pk->spawnType = SetSpawnPositionPacket::TYPE_WORLD_SPAWN;
         $player->getNetworkSession()->sendDataPacket($pk);
-    }
+	}
 
     public function onDrop(PlayerDropItemEvent $event){
         $player = $event->getPlayer();
@@ -762,27 +784,27 @@ class Game implements Listener{
 
     public function onPickup(EntityItemPickupEvent $event){
         $player = $event->getOrigin();
-        $item = $event->getItem()->getId();
+        $item = $event->getItem()->getTypeId();
 
         if(!$player instanceof Player) return;
 	    
         $inv = $player->getInventory();
 
         if($this->isPlaying($player)){
-            if($item == \pocketmine\item\ItemIds::BOW){
+            if($item == 20019){
                 if($player !== $this->getMurderer()){
                     $this->newDetective($player);
                 } else {
                     $event->cancel();
                 }
             }
-            if($item == \pocketmine\item\ItemIds::GOLD_INGOT){
-                if($inv->contains(\pocketmine\item\ItemFactory::getInstance()->get(\pocketmine\item\ItemIds::GOLD_INGOT))){
+            if($item == 20112){
+                if($inv->contains(VanillaItems::GOLD_INGOT())){
                     $this->changeInv[$player->getName()] = $player;
-                    $inv->addItem(\pocketmine\item\ItemFactory::getInstance()->get(\pocketmine\item\ItemIds::GOLD_INGOT, 0, 1));
+                    $inv->addItem(VanillaItems::GOLD_INGOT(), 0, 1);
                     unset($this->changeInv[$player->getName()]);
                 } else {
-                    $this->setItem(\pocketmine\item\ItemIds::GOLD_INGOT, 8, $player);
+                    $this->setItem(VanillaItems::GOLD_INGOT(), 8, $player);
                 }
                 if($player !== $this->getDetective()){
                     $this->checkGold($player);
@@ -793,11 +815,11 @@ class Game implements Listener{
 
     public function checkGold(Player $player){
         if($this->isPlaying($player)){
-            if($player->getInventory()->contains(\pocketmine\item\ItemFactory::getInstance()->get(\pocketmine\item\ItemIds::GOLD_INGOT, 0, 10))){
-                $this->setItem(\pocketmine\item\ItemIds::BOW, 0, $player);
+            if($player->getInventory()->contains(VanillaItems::GOLD_INGOT(), 0, 10)){
+                $this->setItem(VanillaItems::BOW(), 0, $player);
                 $this->changeInv[$player->getName()] = $player;
-                $player->getInventory()->addItem(\pocketmine\item\ItemFactory::getInstance()->get(\pocketmine\item\ItemIds::ARROW, 0, 1));
-                $player->getInventory()->removeItem(\pocketmine\item\ItemFactory::getInstance()->get(\pocketmine\item\ItemIds::GOLD_INGOT, 0, 10));
+                $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
+                $player->getInventory()->removeItem(VanillaItems::GOLD_INGOT(), 0, 10);
                 unset($this->changeInv[$player->getName()]);
 
                 $player->sendTitle("§a+1 Bow Shot!", "§eYou collected 10 gold and got an arrow!");
@@ -805,11 +827,12 @@ class Game implements Listener{
         }
     }
 
-    public function onInvChange(Player $player, InventoryTransactionEvent $event){
+    public function onInvChange(InventoryTransactionEvent $event){ // SpawnPositionPacket
+        $player = $event->getTransaction()->getSource();
         if($player instanceof Player){
             if($this->isPlaying($player)){
                 if($this->phase == self::PHASE_GAME){
-                    if(!isset($this->changeInv[$player->getName()])){
+                    if(!isset($this->changeInv[$player->getName()])){ // onInteract
                         $event->cancel();
                     }
                 }
@@ -820,7 +843,7 @@ class Game implements Listener{
     public function newDetective(Player $player){
         foreach($this->players as $ingame){
             if($ingame !== $this->getMurderer()){
-                $this->setItem(0, 4, $ingame);
+                $this->setItem(VanillaBlocks::AIR()->asItem(), 4, $ingame);
             }
             if($ingame !== $player){
                 $ingame->sendTitle("§r§l§e", "§eA players has picked up the bow!");
@@ -828,18 +851,17 @@ class Game implements Listener{
             }
         }
         $this->changeInv[$player->getName()] = $player;
-        $player->getInventory()->removeItem(\pocketmine\item\ItemFactory::getInstance()->get(\pocketmine\item\ItemIds::BOW));
-        $player->getInventory()->removeItem(\pocketmine\item\ItemFactory::getInstance()->get(\pocketmine\item\ItemIds::ARROW));
+        $player->getInventory()->removeItem(VanillaItems::BOW());
+        $player->getInventory()->removeItem(VanillaItems::ARROW());
         $player->sendTitle("§aYou picked up the bow!", "§6GOAL: §eFind and kill the murderer!");
         $this->detective = $player;
-        $this->setItem(261, 1, $player, "§aBow");
+        $this->setItem(VanillaItems::BOW(), 1, $player, "§aBow");
         $this->giveArrow();
     }
 
-    public function dropItem(World $level, int $id, $pos){
-        $item = \pocketmine\item\ItemFactory::getInstance()->get($id);
-
-        $level->dropItem($pos, $item);
+    public function dropItem(World $level, Item $item, Vector3 $pos, int $delay) : ?ItemEntity{
+        $delay = $this->plugin->getConfig()->get("GoldSpawnRate");
+        $level->dropItem($pos, $item, $delay);
     }
 
     public function unsetSpectator($player){
@@ -863,7 +885,7 @@ class Game implements Listener{
     public function detectiveDied(){
         foreach($this->players as $player){
             if(($player !== $this->getMurderer()) && ($player !== $this->getDetective())){
-                $this->setItem(345, 4, $player);
+                $this->setItem(VanillaItems::COMPASS(), 4, $player);
             }
             $player->sendTitle("§6The Detective has been killed!", "§eFind the bow for a chance to kill the Murderer.");
             $player->sendMessage("§6The Detective has been killed! §eFind the bow for a chance to kill the Murderer.");
@@ -879,7 +901,7 @@ class Game implements Listener{
         );
         
         $sword = new SwordEntity($player->getWorld(), $nbt);
-        $sword->setMotion($sword->getMotion()->multiply(1.4));
+        $sword->setMotion($sword->getMotion()->multiply($this->plugin->getConfig()->get("Throwable-Sword-Speed")));
         $sword->setPose();
         $sword->setInvisible();
         $sword->spawnToAll();

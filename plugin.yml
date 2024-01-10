@@ -17,3 +17,6 @@ permissions:
   murdermystery.noop:
     description: "Permission to all Non Op Commands!"
     default: true
+  murdermystery.forcestart:
+    description: "Force start a game"
+    default: op

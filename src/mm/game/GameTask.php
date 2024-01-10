@@ -12,6 +12,7 @@ use pocketmine\scheduler\Task;
 use pocketmine\block\tile\Sign;
 use pocketmine\block\utils\SignText;
 use pocketmine\player\GameMode;
+use pocketmine\block\VanillaBlocks;
 
 use mm\utils\Vector;
 
@@ -43,7 +44,7 @@ class GameTask extends Task{
         $this->plugin->scoreboard();
         switch($this->plugin->phase){
             case Game::PHASE_LOBBY:
-                if(count($this->plugin->players) >= 2){
+                if(count($this->plugin->players) >= $this->plugin->plugin->getConfig()->get("Minimum-players")){
                     switch($this->startTime){
                         case 30:
                             foreach($this->plugin->players as $player){
@@ -61,7 +62,7 @@ class GameTask extends Task{
                             foreach($this->plugin->players as $player){
                                 $player->sendMessage("§eThe game starts in §6" . $this->startTime . "§e seconds!");
                                 $player->sendTitle("§a10");
-                                $this->plugin->setItem(0, 4, $player);
+                                $this->plugin->setItem(VanillaBlocks::AIR()->asItem(), 4, $player);
                                 $this->addSound($player, "note.hat");
                             }
                         break;
