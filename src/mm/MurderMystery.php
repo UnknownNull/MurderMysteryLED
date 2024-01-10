@@ -6,7 +6,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\{CommandSender, Command};
 use pocketmine\player\Player;
 use pocketmine\event\Listener;
-use pocketmine\event\player\{PlayerInteractEvent, PlayerChatEvent, PlayerJoinEvent};
+use pocketmine\event\player\{PlayerInteractEvent, PlayerChatEvent, PlayerJoinEvent, PlayerItemUseEvent};
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityFactory;
@@ -17,6 +17,8 @@ use pocketmine\world\World;
 use mm\utils\{GameChooser, SwordEntity, Vector};
 use mm\provider\Provider;
 use mm\game\Game;
+
+use Vecnavium\FormsUI\{SimpleForm, CustomForm};
 
 class MurderMystery extends PluginBase implements Listener{
 
@@ -144,8 +146,9 @@ class MurderMystery extends PluginBase implements Listener{
                     }
 
                     $sender->sendMessage("§l§7-= §cMurder Mystery §7=-");
-                    $sender->sendMessage("§6help §f: §7View a list of available setup commands");
-                    $sender->sendMessage("§6done §f: §7Leave setup mode");
+                    $sender->sendMessage("§6use the paper to configure");
+                    $sender->sendMessage("§6use the emerald enable & complete");
+                    $this->giveSetupItems($sender);
                     $this->editors[$sender->getName()] = $this->games[$args[1]];
                 break;
 
@@ -215,63 +218,120 @@ class MurderMystery extends PluginBase implements Listener{
     }
 	
 
-    public function onChat(PlayerChatEvent $event){
+    // public function onChat(PlayerChatEvent $event){
+    //     $player = $event->getPlayer();
+
+    //     if(isset($this->editors[$player->getName()])){
+    //         $event->cancel();
+    //         $args = explode(" ", $event->getMessage());
+    //         $game = $this->editors[$player->getName()];
+
+    //         switch($args[0]){
+    //             case "help":
+    //                 $player->sendMessage("§l§7-= §cMurder Mystery §7=-");
+    //                 $player->sendMessage("§6help§f: §7Shows a list of available setup commands");
+    //                 $player->sendMessage("§6map <name>§f: §7Set the map");
+    //                 $player->sendMessage("§6lobby§f: §7Set waiting lobby");
+    //                 $player->sendMessage("§6spawn§f: §7Set the spawn positions");
+    //                 $player->sendMessage("§6gold§f: §7Set the gold spawn positions");
+    //                 $player->sendMessage("§6joinsign§f: §7Set the joinsign for the game");
+    //                 $player->sendMessage("§6enable§f: §7Enable the game");
+    //             break;
+
+    //             case "map":
+    //                 if(!isset($args[1])){
+    //                     $game->data["map"] = $player->getWorld()->getFolderName();
+    //                     $player->sendMessage($this->prefix . "§7Game map has been set to §6" . $player->getWorld()->getFolderName());
+    //                     break;
+    //                 }
+
+    //                 if(!$this->getServer()->getWorldManager()->isWorldGenerated($args[1])){
+    //                     $player->sendMessage($this->prefix . "§7World §6" . $args[1] . "§r§7 does not exist!");
+    //                     break;
+    //                 }
+
+    //                 $game->data["map"] = $args[1];
+    //                 $player->sendMessage($this->prefix . "§7Game map has been set to §6" . $args[1]);
+    //             break;
+
+    //             case "lobby":
+    //                 $game->data["lobby"] = (new Vector($player->getPosition()->getX(), $player->getPosition()->getY(), $player->getPosition()->getZ()))->__toString();
+    //                 $player->sendMessage($this->prefix . "§7Waiting lobby has been set to §6" . round($player->getPosition()->getX()) . ", " . round($player->getPosition()->getY()) . ", " . round($player->getPosition()->getZ()));
+    //             break;
+
+    //             case "spawn":
+    //                 $this->spawns[$player->getName()] = 1;
+    //                 $player->sendMessage($this->prefix . "§7Touch the spaws for the players!");
+    //             break;
+
+    //             case "gold":
+    //                 $this->gold[$player->getName()] = 1;
+    //                 $player->sendMessage($this->prefix . "§7Touch the spaws for the gold!");
+    //             break;
+
+    //             case "joinsign":
+    //                 $player->sendMessage($this->prefix . "§7Break a sign to set the joinsign");
+    //                 $this->setupData[$player->getName()] = 0;
+    //             break;
+
+    //             case "enable":
+    //                 if(!$game->setup){
+    //                     $player->sendMessage($this->prefix . "§7This arena is already enabled!");
+    //                     break;
+    //                 }
+
+    //                 if(!$game->enable()){
+    //                     $player->sendMessage($this->prefix . "§7Could not enable the arena, complete the setup first!");
+    //                     break;
+    //                 }
+
+    //                 $player->sendMessage($this->prefix . "§7Arena has been enabled!");
+    //             break;
+
+    //             case "done":
+    //                 $player->sendMessage($this->prefix . "§7You have left the setup mode");
+    //                 unset($this->editors[$player->getName()]);
+    //                 if(isset($this->setupData[$player->getName()])){
+    //                     unset($this->setupData[$player->getName()]);
+    //                 }
+    //             break;
+
+    //             default:
+    //                 $player->sendMessage("§l§7-= §cMurder Mystery §7=-");
+    //                 $player->sendMessage("§6help §f: §7View a list of available setup commands");
+    //                 $player->sendMessage("§6done §f: §7Leave setup mode");
+    //             break;
+    //         }
+    //     }
+    // }
+
+    use pocketmine\item\Item;
+
+    public function giveSetupItems(Player $player): void {
+        $player->getInventory()->clearAll();
+
+        $emerald = VanillaItems::EMERALD();
+        $emerald->setCustomName("§r§l§aComplete");
+        $player->getInventory()->setItem(4, $emerald);
+
+        $paper = VanillaItems::PAPER();
+        $paper->setCustomName("§r§l§6Setup");
+        $player->getInventory()->setItem(0, $paper);
+
+        $bed = VanillaBlocks::BED()->asItem();
+        $bed->setCustomName("§r§l§cLeave / Done");
+        $player->getInventory()->setItem(8, $bed);
+    }
+    
+
+    public function onItemUse(PlayerItemUseEvent $event){
         $player = $event->getPlayer();
-
+        $customName = $event->getItem()->getCustomName();
+        $item = $event->getItem();
         if(isset($this->editors[$player->getName()])){
-            $event->cancel();
-            $args = explode(" ", $event->getMessage());
             $game = $this->editors[$player->getName()];
-
-            switch($args[0]){
-                case "help":
-                    $player->sendMessage("§l§7-= §cMurder Mystery §7=-");
-                    $player->sendMessage("§6help§f: §7Shows a list of available setup commands");
-                    $player->sendMessage("§6map <name>§f: §7Set the map");
-                    $player->sendMessage("§6lobby§f: §7Set waiting lobby");
-                    $player->sendMessage("§6spawn§f: §7Set the spawn positions");
-                    $player->sendMessage("§6gold§f: §7Set the gold spawn positions");
-                    $player->sendMessage("§6joinsign§f: §7Set the joinsign for the game");
-                    $player->sendMessage("§6enable§f: §7Enable the game");
-                break;
-
-                case "map":
-                    if(!isset($args[1])){
-                        $game->data["map"] = $player->getWorld()->getFolderName();
-                        $player->sendMessage($this->prefix . "§7Game map has been set to §6" . $player->getWorld()->getFolderName());
-                        break;
-                    }
-
-                    if(!$this->getServer()->getWorldManager()->isWorldGenerated($args[1])){
-                        $player->sendMessage($this->prefix . "§7World §6" . $args[1] . "§r§7 does not exist!");
-                        break;
-                    }
-
-                    $game->data["map"] = $args[1];
-                    $player->sendMessage($this->prefix . "§7Game map has been set to §6" . $args[1]);
-                break;
-
-                case "lobby":
-                    $game->data["lobby"] = (new Vector($player->getPosition()->getX(), $player->getPosition()->getY(), $player->getPosition()->getZ()))->__toString();
-                    $player->sendMessage($this->prefix . "§7Waiting lobby has been set to §6" . round($player->getPosition()->getX()) . ", " . round($player->getPosition()->getY()) . ", " . round($player->getPosition()->getZ()));
-                break;
-
-                case "spawn":
-                    $this->spawns[$player->getName()] = 1;
-                    $player->sendMessage($this->prefix . "§7Touch the spaws for the players!");
-                break;
-
-                case "gold":
-                    $this->gold[$player->getName()] = 1;
-                    $player->sendMessage($this->prefix . "§7Touch the spaws for the gold!");
-                break;
-
-                case "joinsign":
-                    $player->sendMessage($this->prefix . "§7Break a sign to set the joinsign");
-                    $this->setupData[$player->getName()] = 0;
-                break;
-
-                case "enable":
+            switch($customName){
+                case "§r§l§aComplete":
                     if(!$game->setup){
                         $player->sendMessage($this->prefix . "§7This arena is already enabled!");
                         break;
@@ -284,23 +344,96 @@ class MurderMystery extends PluginBase implements Listener{
 
                     $player->sendMessage($this->prefix . "§7Arena has been enabled!");
                 break;
-
-                case "done":
-                    $player->sendMessage($this->prefix . "§7You have left the setup mode");
-                    unset($this->editors[$player->getName()]);
-                    if(isset($this->setupData[$player->getName()])){
-                        unset($this->setupData[$player->getName()]);
-                    }
+                case "§r§l§6Setup":
+                   $this->setupForm($player);
                 break;
-
-                default:
-                    $player->sendMessage("§l§7-= §cMurder Mystery §7=-");
-                    $player->sendMessage("§6help §f: §7View a list of available setup commands");
-                    $player->sendMessage("§6done §f: §7Leave setup mode");
+                case "§r§l§cLeave / Done":
+                  $player->sendMessage($this->prefix . "§7You have left setup mode");
+                  unset($this->editors[$player->getName()]);
+                  if(isset($this->setupData[$player->getName()])){
+                     unset($this->setupData[$player->getName()]);
+                  }
                 break;
             }
         }
     }
+
+    public function setupForm(Player $player): void {
+        $form = new SimpleForm(function(Player $player, $data){
+            $game = $this->editors[$player->getName()];
+            if ($data === null) {
+                return;
+            }
+    
+            switch ($data) {
+                case 0:
+                    $this->setupMap($player);
+                    break;
+    
+                case 1:
+                    $game->data["lobby"] = (new Vector($player->getPosition()->getX(), $player->getPosition()->getY(), $player->getPosition()->getZ()))->__toString();
+                    $player->sendMessage($this->prefix . "§7Waiting lobby has been set to §6" . round($player->getPosition()->getX()) . ", " . round($player->getPosition()->getY()) . ", " . round($player->getPosition()->getZ()));
+                    break;
+
+                case 2:
+                    $this->spawns[$player->getName()] = 1;
+                    $player->sendMessage($this->prefix . "§7Touch an block to setup a spawn for the players!");
+                    break;
+
+                case 3:
+                    $this->gold[$player->getName()] = 1;
+                    $player->sendMessage($this->prefix . "§7Touch an block to setup a gold spawn for the gold {You can decide what the max gold spawns can be in config}!");
+                    break;
+
+                case 4:
+                    $player->sendMessage($this->prefix . "§7Break a sign to set the joinsign");
+                    $this->setupData[$player->getName()] = 0;
+                    break;
+
+            }
+        });
+    
+        $form->setTitle("Setup Form");
+        $form->setContent("Choose an option:");
+        $form->addButton("Map");
+        $form->addButton("Lobby");
+        $form->addButton("Spawn");
+        $form->addButton("Gold");
+        $form->addButton("JoinSign");
+        $form->sendToPlayer($player);
+    }
+
+    public function setupMap(Player $player): void {
+        $form = new CustomForm(function(Player $player, $data) {
+            if ($data === null) {
+                return;
+            }
+    
+            $map = $data[0];
+    
+            $game = $this->editors[$player->getName()];
+    
+            if (!isset($data[1])) {
+                $game->data["map"] = $player->getWorld()->getFolderName();
+                $player->sendMessage($this->prefix . "§7Game map has been set to §6" . $player->getWorld()->getFolderName());
+            } else {
+                $worldName = $data[1];
+    
+                if (!$this->getServer()->getWorldManager()->isWorldGenerated($worldName)) {
+                    $player->sendMessage($this->prefix . "§7World §6" . $worldName . "§r§7 does not exist!");
+                } else {
+                    $game->data["map"] = $worldName;
+                    $player->sendMessage($this->prefix . "§7Game map has been set to §6" . $worldName);
+                }
+            }
+        });
+    
+        $form->setTitle("Map - MM Setup");
+        $form->addInput("Enter the world's name", "Enter the world's name");
+        $form->addInput("Optional: Enter a different world's name (leave empty to use current world)", "Optional: Enter a different world's name");
+        $form->sendToPlayer($player);
+    }
+    
 
     public function onBreak(BlockBreakEvent $event){
         $player = $event->getPlayer();
@@ -322,7 +455,7 @@ class MurderMystery extends PluginBase implements Listener{
         $player = $event->getPlayer();
         if($this->getConfig()->get("WaterDogPE-Support") === true){
             $this->joinGame($player);
-	}
+	    }
     }
 	
     public function onTouch(PlayerInteractEvent $event){
