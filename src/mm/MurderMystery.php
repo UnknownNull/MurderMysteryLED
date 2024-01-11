@@ -7,6 +7,7 @@ use pocketmine\command\{CommandSender, Command};
 use pocketmine\player\Player;
 use pocketmine\event\Listener;
 use pocketmine\item\VanillaItems;
+use pocketmine\utils\Config;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\event\player\{PlayerInteractEvent, PlayerChatEvent, PlayerJoinEvent, PlayerItemUseEvent, PlayerDropItemEvent};
 use pocketmine\event\block\BlockBreakEvent;
