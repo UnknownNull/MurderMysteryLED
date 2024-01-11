@@ -44,6 +44,8 @@ class MurderMystery extends PluginBase implements Listener{
 
     protected function onEnable(): void{
         $this->saveDefaultConfig();
+        $this->scoreboard = new Config($this->getDataFolder() . "scoreboard.yml", Config::YAML);
+        $this->extras = new Config($this->getDataFolder() . "extras.yml", Config::YAML);
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->provider->loadGames();
 	EntityFactory::getInstance()->register(SwordEntity::class, function(World $world, CompoundTag $nbt) : SwordEntity{
