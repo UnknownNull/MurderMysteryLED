@@ -502,7 +502,7 @@ class Game implements Listener{
     }
 
 
-    public function onInteract(PlayerInteractEvent $event, Location $location){
+    public function onInteract(PlayerInteractEvent $event){ // Item
         $player = $event->getPlayer();
         $block = $event->getBlock();
         $level = $player->getWorld();
@@ -512,16 +512,6 @@ class Game implements Listener{
             if($block->getTypeId() == 10072 or $block->getTypeId() == 10094 or $block->getTypeId() == 10384 or $block->getTypeId() == 10023 or $block->getTypeId() == 10031){
                 $event->cancel();
                 return;
-            }
-            if($item === VanillaItems::BOW()){
-                $this->shooter = $player;
-            }
-            if($item === VanillaItems::IRON_SWORD()){
-                if(!isset($this->cooldown[$player->getName()])){
-                    if($this->phase == self::PHASE_GAME){
-                        $this->createSwordEntity($player);
-                    }
-                }
             }
         }
 
@@ -638,6 +628,17 @@ class Game implements Listener{
             case "§r§l§bStart Game§r":
                 // forgot logic? WIP
                 break;
+            }
+
+            if($item === VanillaItems::BOW()){
+                $this->shooter = $player;
+            }
+            if($item === VanillaItems::IRON_SWORD()){
+                if(!isset($this->cooldown[$player->getName()])){
+                    if($this->phase == self::PHASE_GAME){
+                        $this->createSwordEntity($player);
+                    }
+                }
             }
         }
     }
