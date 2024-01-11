@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-
 namespace mm\entities;
-
 
 use pocketmine\block\BlockTypeIds;
 use pocketmine\entity\Human;
@@ -22,7 +20,7 @@ use mm\utils\ColorUtils;
 use function array_filter;
 use function count;
 
-class NPCEntity extends Human {
+class NpcEntity extends Human {
 
     public function __construct(Location $location, Skin $skin, CompoundTag $nbt) {
         parent::__construct($location, $skin);
