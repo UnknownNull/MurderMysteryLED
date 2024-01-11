@@ -63,7 +63,7 @@ class MurderMystery extends PluginBase implements Listener{
 	       return new SwordEntity(EntityDataHelper::parseLocation($nbt, $world), null, $nbt);
 	    }, ['SwordEntity']);
         EntityFactory::getInstance()->register(NpcEntity::class, function(World $world, CompoundTag $nbt) : NpcEntity {
-            return new $class(EntityDataHelper::parseLocation($nbt, $world), Human::parseSkinNBT($nbt), $nbt);
+            return new NpcEntity(EntityDataHelper::parseLocation($nbt, $world), Human::parseSkinNBT($nbt), $nbt);
         }, ["MurderMysteryNpc"]);
     }
 	    
