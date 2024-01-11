@@ -133,10 +133,10 @@ class Game implements Listener{
         $entry = new ScorePacketEntry();
         $packet = new SetScorePacket();
 
-        if (count($this->players) < $this->plugin->getConfig()->get("Minimum-players")) {
-            $status = str_replace("{sec}", $this->task->startTime, $this->plugin->getConfig()->get("WaitingStatus"));
+        if (count($this->players) < $this->plugin->scoreboard->get("Minimum-players")) { // getConfig
+            $status = str_replace("{sec}", $this->task->startTime, $this->plugin->scoreboard->get("WaitingStatus"));
         } else {
-            $status = str_replace("{sec}", $this->task->startTime, $this->plugin->getConfig()->get("StartingStatus"));
+            $status = str_replace("{sec}", $this->task->startTime, $this->plugin->scoreboard->get("StartingStatus"));
         }        
 
         $msg = str_replace([
@@ -172,15 +172,15 @@ class Game implements Listener{
             $this->removeScoreboard($player);
             switch($this->phase){
                 case Game::PHASE_GAME:
-                    $this->createScoreboard($player, $this->plugin->getConfig()->get("Scoreboard-Title"), $this->plugin->getConfig()->get("GameScoreboard"));
+                    $this->createScoreboard($player, $this->plugin->scoreboard->get("Scoreboard-Title"), $this->plugin->scoreboard->get("GameScoreboard"));
                 break;
 
                 case Game::PHASE_RESTART:
-                    $this->createScoreboard($player, $this->plugin->getConfig()->get("Scoreboard-Title"), $this->plugin->getConfig()->get("RestartScoreboard"));
+                    $this->createScoreboard($player, $this->plugin->scoreboard->get("Scoreboard-Title"), $this->plugin->scoreboard->get("RestartScoreboard"));
                 break;
 
                 case Game::PHASE_LOBBY:
-                    $this->createScoreboard($player, $this->plugin->getConfig()->get("Scoreboard-Title"), $this->plugin->getConfig()->get("LobbyScoreboard"));
+                    $this->createScoreboard($player, $this->plugin->scoreboard->get("Scoreboard-Title"), $this->plugin->scoreboard->get("LobbyScoreboard"));
                 break;
             }
         }
@@ -862,9 +862,9 @@ class Game implements Listener{
     }
 
     public function checkGold(Player $player){ // restart
-        if($this->plugin->getConfig()->get("MM-Bow-Gold") === true){
+        if($this->plugin->extras->get("MM-Bow-Gold") === true){
             if($this->isPlaying($player)){
-                if($this->getGold($player) === $this->plugin->getConfig()->get("MM-Bow-Gold-Required")){
+                if($this->getGold($player) === $this->plugin->extras->get("MM-Bow-Gold-Required")){
                   $this->setItem(VanillaItems::BOW(), 0, $player);
                   $this->changeInv[$player->getName()] = $player;
                   $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
@@ -878,9 +878,9 @@ class Game implements Listener{
     }
 
     public function checkGold2(Player $player){ // restart
-        if($this->plugin->getConfig()->get("MM-Role-Detector") === true){
+        if($this->plugin->extras->get("MM-Role-Detector") === true){ // getConfig
            if($this->isPlaying($player)){
-             if($this->getGold($player) === $this->plugin->getConfig()->get("MM-Role-Detector-Gold-Required")){
+             if($this->getGold($player) === $this->plugin->extras->get("MM-Role-Detector-Gold-Required")){
                 $this->setItem(VanillaItems::BOW(), 0, $player);
                 $this->changeInv[$player->getName()] = $player;
                 $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
@@ -975,7 +975,7 @@ class Game implements Listener{
         );
         
         $sword = new SwordEntity($player->getWorld(), $nbt);
-        $sword->setMotion($sword->getMotion()->multiply($this->plugin->getConfig()->get("Throwable-Sword-Speed")));
+        $sword->setMotion($sword->getMotion()->multiply($this->plugin->extras->get("Throwable-Sword-Speed")));
         $sword->setPose();
         $sword->setInvisible();
         $sword->spawnToAll();

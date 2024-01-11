@@ -44,7 +44,7 @@ class GameTask extends Task{
         $this->plugin->scoreboard();
         switch($this->plugin->phase){
             case Game::PHASE_LOBBY:
-                if(count($this->plugin->players) >= $this->plugin->plugin->getConfig()->get("Minimum-players")){
+                if(count($this->plugin->players) >= $this->plugin->plugin->extras->get("Minimum-players")){
                     switch($this->startTime){
                         case 30:
                             foreach($this->plugin->players as $player){

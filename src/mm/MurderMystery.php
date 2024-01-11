@@ -16,7 +16,7 @@ use pocketmine\entity\EntityFactory;
 use pocketmine\entity\EntityDataHelper;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\world\World;
-
+// $event
 use mm\utils\{GameChooser, SwordEntity, Vector};
 use mm\provider\Provider;
 use mm\game\Game;
@@ -51,6 +51,8 @@ class MurderMystery extends PluginBase implements Listener{
 
     protected function onEnable(): void{
         $this->saveDefaultConfig();
+		$this->saveResource("extras.yml");
+		$this->saveResource("scoreboard.yml");
         $this->scoreboard = new Config($this->getDataFolder() . "scoreboard.yml", Config::YAML);
         $this->extras = new Config($this->getDataFolder() . "extras.yml", Config::YAML);
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
@@ -369,8 +371,8 @@ class MurderMystery extends PluginBase implements Listener{
         }
     }
 
-    public function onDropItem(PlayerDropItemEvent $ev){
-        $player = $ev->getPlayer();
+    public function onDropItem(PlayerDropItemEvent $event){
+        $player = $event->getPlayer();
         $customName = $event->getItem()->getCustomName();
         $item = $event->getItem();
         if(isset($this->editors[$player->getName()])){
