@@ -483,7 +483,7 @@ class Game implements Listener{
         $this->phase = self::PHASE_RESTART;
 
         foreach($this->map->getEntities() as $entity){
-            if($entity instanceof SwordEntity && $entity instanceof Arrow){
+            if($entity instanceof SwordEntity && $entity instanceof Arrow && $entity instanceof ItemEntity){
                 $entity->close();
             }
         }
