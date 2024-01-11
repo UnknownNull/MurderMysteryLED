@@ -209,7 +209,7 @@ class MurderMystery extends PluginBase implements Listener{
                 $sender->sendMessage($this->noPerms);
                 break;
             }
-            $entity = new NpcEntity($player->getLocation(), $player->getSkin());
+            $entity = new NpcEntity($sender->getLocation(), $sender->getSkin());
             $entity->spawnToAll();
         break;
 			    
