@@ -13,6 +13,7 @@ An MurderMystery plugin mean't for pocketmine
 - [X] Commands & Permissions
 # Entity Todo-List
 - [ ] Throwable-Sword [However code has been done just not **Fully working**]
+- [X] MurderMystery Join Npc
 - [ ] Dead Body Entity
 # Commands Todo-List
 - [X] Join Command (the join command is also basically the random cmd)
