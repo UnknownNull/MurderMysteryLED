@@ -22,7 +22,7 @@ use function count;
 
 class NpcEntity extends Human {
 
-    public function __construct(Location $location, Skin $skin, CompoundTag $nbt) {
+    public function __construct(Location $location, Skin $skin) {
         parent::__construct($location, $skin);
     }
 
