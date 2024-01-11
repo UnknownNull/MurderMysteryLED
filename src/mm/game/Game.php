@@ -520,17 +520,17 @@ class Game implements Listener{
             }
         }
 
-        if($level == null){
+        if ($level === null || !$block instanceof Sign) {
             return;
         }
-
+        
         $signPos = Position::fromObject(Vector::fromString($this->data["joinsign"][0]), $this->plugin->getServer()->getWorldManager()->getWorldByName($this->data["joinsign"][1]));
-
-        if((!$signPos->equals($block)) || $signPos->getWorld()->getId() != $level->getId()){
+        
+        if ((!$signPos->equals($block)) || $signPos->getWorld()->getId() != $level->getId()) {
             return;
         }
-
-        if($this->phase == self::PHASE_GAME){
+        
+        if ($this->phase == self::PHASE_GAME) {
             $player->sendMessage("§cThis game has already started!");
             return;
         }
