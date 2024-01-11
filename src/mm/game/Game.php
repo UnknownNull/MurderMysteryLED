@@ -75,6 +75,7 @@ class Game implements Listener{
     public $map = null;
 
     public $data = [];
+    public $gold = [];
     public $players = [];
     public $spectators = [];
     public $cooldown = [];
@@ -132,11 +133,11 @@ class Game implements Listener{
         $entry = new ScorePacketEntry();
         $packet = new SetScorePacket();
 
-        if(count($this->players) < $this->plugin->getConfig()->get("Minimum-players")){
+        if (count($this->players) < $this->plugin->getConfig()->get("Minimum-players")) {
             $status = str_replace("{sec}", $this->task->startTime, $this->plugin->getConfig()->get("WaitingStatus"));
         } else {
-            $status = $this->plugin->getConfig()->get("StartingStatus");
-        }
+            $status = str_replace("{sec}", $this->task->startTime, $this->plugin->getConfig()->get("StartingStatus"));
+        }        
 
         $msg = str_replace([
             "{players}", "{innocents}", "{detec_status}", "{role}", "{map}", "{time}","{status}"
@@ -442,6 +443,7 @@ class Game implements Listener{
         foreach($this->spectators as $spectator){
             $this->broadcastMessage($spectator, "§cYOU LOSE! §6The Murderer killed everyone!");
             $this->broadcastTitle($spectator, "§cYOU LOSE!", "§6The Murderer killed everyone!");
+            $this->resetGold($player);
         }
 
         $murderer = $this->getMurderer();
@@ -450,6 +452,7 @@ class Game implements Listener{
         }
         $this->broadcastMessage($murderer, "§aYOU WIN! §6You have killed everyone!");
         $this->broadcastTitle($murderer, "§aYOU WIN!", "§6You have killed everyone!");
+        $this->resetGold($murderer); // pickup
 
         $this->startRestart();
     }
@@ -460,6 +463,7 @@ class Game implements Listener{
                 $this->playSound($spectator, "random.levelup");
                 $this->broadcastMessage($spectator, "§aYOU WIN! §6The Murderer has been stopped!");
                 $this->broadcastTitle($spectator, "§aYOU WIN!", "§6The Murderer has been stopped!");
+                $this->resetGold($player);
             }
         }
 
@@ -467,6 +471,7 @@ class Game implements Listener{
             $this->playSound($player, "random.levelup");
             $this->broadcastMessage($player, "§aYOU WIN! §6The Murderer has been stopped!");
             $this->broadcastTitle($player, "§aYOU WIN!", "§6The Murderer has been stopped!");
+            $this->resetGold($player);
         }
         $this->startRestart();
     }
@@ -719,6 +724,25 @@ class Game implements Listener{
         }
     }
 
+
+    public function addGold(Player $player): void {
+        $playerName = $player->getName();
+        if (!isset($this->gold[$playerName])) {
+            $this->gold[$playerName] = 0;
+        }
+        $this->gold[$playerName]++;
+    }
+
+    public function getGold(Player $player): int {
+        $playerName = $player->getName();
+        return isset($this->gold[$playerName]) ? $this->gold[$playerName] : 0;
+    }    
+    
+    public function resetGold(Player $player): void {
+        $playerName = $player->getName();
+        $this->gold[$playerName] = 0;
+    }
+
     public function onChat(PlayerChatEvent $event){
         $player = $event->getPlayer();
         if(isset($this->spectators[$player->getName()])){
@@ -802,46 +826,70 @@ class Game implements Listener{
 
     public function onPickup(EntityItemPickupEvent $event){
         $player = $event->getOrigin();
-        $item = $event->getItem()->getTypeId();
-
-        if(!$player instanceof Player) return;
-	    
+        $item = $event->getItem();
+    
+        if (!$player instanceof Player) {
+            return;
+        }
+    
         $inv = $player->getInventory();
-
-        if($this->isPlaying($player)){
-            if($item == 20019){
-                if($player !== $this->getMurderer()){
+    
+        if ($this->isPlaying($player)) {
+            if ($item == VanillaItems::BOW()) {
+                if ($player !== $this->getMurderer()) {
                     $this->newDetective($player);
                 } else {
                     $event->cancel();
                 }
             }
-            if($item == 20112){
-                if($inv->contains(VanillaItems::GOLD_INGOT())){
+    
+            if ($item == VanillaItems::GOLD_INGOT()) {
+                if ($inv->contains(VanillaItems::GOLD_INGOT())) {
                     $this->changeInv[$player->getName()] = $player;
-                    $inv->addItem(VanillaItems::GOLD_INGOT(), 0, 1);
+                    $inv->addItem(VanillaItems::GOLD_INGOT(), 0, 8);
                     unset($this->changeInv[$player->getName()]);
                 } else {
                     $this->setItem(VanillaItems::GOLD_INGOT(), 8, $player);
                 }
-                if($player !== $this->getDetective()){
+    
+                if ($player !== $this->getDetective()) {
                     $this->checkGold($player);
+                }
+                $this->addGold($player);
+                $this->checkGold2($player);
+            }
+        }
+    }
+
+    public function checkGold(Player $player){ // restart
+        if($this->plugin->getConfig()->get("MM-Bow-Gold") === true){
+            if($this->isPlaying($player)){
+                if($this->getGold($player) === $this->plugin->getConfig()->get("MM-Bow-Gold-Required")){
+                  $this->setItem(VanillaItems::BOW(), 0, $player);
+                  $this->changeInv[$player->getName()] = $player;
+                  $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
+                  $player->getInventory()->removeItem(VanillaItems::GOLD_INGOT(), 0, 10);
+                  unset($this->changeInv[$player->getName()]);
+                  $this->resetGold($player);
+                  $player->sendTitle("§a+1 Bow Shot!", "§eYou collected 10 gold and got an arrow!");
                 }
             }
         }
     }
 
-    public function checkGold(Player $player){
-        if($this->isPlaying($player)){
-            if($player->getInventory()->contains(VanillaItems::GOLD_INGOT(), 0, 10)){
+    public function checkGold2(Player $player){ // restart
+        if($this->plugin->getConfig()->get("MM-Role-Detector") === true){
+           if($this->isPlaying($player)){
+             if($this->getGold($player) === $this->plugin->getConfig()->get("MM-Role-Detector-Gold-Required")){
                 $this->setItem(VanillaItems::BOW(), 0, $player);
                 $this->changeInv[$player->getName()] = $player;
                 $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
                 $player->getInventory()->removeItem(VanillaItems::GOLD_INGOT(), 0, 10);
                 unset($this->changeInv[$player->getName()]);
-
-                $player->sendTitle("§a+1 Bow Shot!", "§eYou collected 10 gold and got an arrow!");
-            }
+                $this->resetGold($player);
+                $player->sendMessage("Murderer: " . $this->getMurderer()->getName());
+              }
+           }
         }
     }
 

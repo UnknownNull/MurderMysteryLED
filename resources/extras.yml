@@ -1,0 +1,19 @@
+# If player is detective & gets 30 gold or the amount of gold u set it to on 
+# MM-Role-Detector-Gold-Required {default} and this is true they'll be notified
+# the murderers name
+MM-Role-Detector: false
+MM-Role-Detector-Gold-Required: 30
+#
+# WaterdogPE support - if true when the player joins they will be joined to a random arena
+WaterDogPE-Support: false
+#
+# Min amount of players needed to start
+Minimum-players: 2
+#
+# Throwable Sword Speed - 1.4 default
+Throwable-Sword-Speed: 1.4
+#
+# If this value is true everytime the player {innocent or murderer} gets 10 gold or any value
+# you set at MM-Bow-Gold-Required they'll get 1 bow & arrow
+MM-Bow-Gold: true
+MM-Bow-Gold-Required: 10

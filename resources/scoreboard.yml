@@ -1,0 +1,47 @@
+#
+# Waiting status
+WaitingStatus: §cWaiting for more players...
+#
+# Starting status
+StartingStatus: Starting in {sec}s
+#
+# Scoreboard Title that gets displayed to players during a game
+Scoreboard-Title: §l§cMurder Mystery
+#
+# The scoreboard that gets displayed to players in the waiting lobby
+LobbyScoreboard: 
+- "§7§r"
+- "§fPlayers: §a{players}/16"
+- "§r"
+- "{status}"
+- "§r§7"
+- "§fMap: §a{map}"
+- "§b"
+- "§eplay.yourserver.net"
+#
+# The scoreboard that gets displayed to players during a game
+GameScoreboard:
+- "§7§r"
+- "§fRole: §a{role}"
+- "§r"
+- "§fInnocents left: §a{innocents}"
+- "§fTime left: §a{time}"
+- "§a§r"
+- "§fDetective: §a{detec_status}"
+- "§r§7"
+- "§fMap: §a{map}"
+- "§b"
+- "§eplay.yourserver.net"
+#
+# The scoreboard that gets displayed to players after a game
+RestartScoreboard:
+- "§7§r"
+- "§fRole: §aSpectator"
+- "§r"
+- "§fInnocents left: §a0"
+- "§a§r"
+- "§fDetective: §a{detec_status}"
+- "§r§7"
+- "§fMap: §a{map}"
+- "§b"
+- "§eplay.yourserver.net"
