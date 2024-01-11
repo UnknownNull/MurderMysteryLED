@@ -82,6 +82,7 @@ class Game implements Listener{
     public $interactDelay = [];
     public $changeInv = [];
 
+    public $arrow;
     public $shooter;
     public $murderer;
     public $detective;
