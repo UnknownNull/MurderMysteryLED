@@ -35,6 +35,12 @@ class MurderMystery extends PluginBase implements Listener{
     public $spawns = [];
     public $gold = [];
 
+    /** @var Config */
+    private $scoreboard;
+
+    /** @var Config */
+    private $extras;
+
     public $prefix;
     public $noPerms = "§cYou don't have permission to use this command!";
 
