@@ -1,5 +1,5 @@
 name: MurderMysteryLED
-version: 2.3
+version: 0.0.1
 api: [5.0.0]
 author: LeyKey
 main: mm\MurderMystery
