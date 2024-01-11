@@ -14,10 +14,12 @@ use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\entity\Entity;
 use pocketmine\entity\EntityFactory;
 use pocketmine\entity\EntityDataHelper;
+use pocketmine\entity\Human;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\world\World;
 // $event
 use mm\utils\{GameChooser, SwordEntity, Vector};
+use mm\entities\{NpcEntity};
 use mm\provider\Provider;
 use mm\game\Game;
 
@@ -57,9 +59,12 @@ class MurderMystery extends PluginBase implements Listener{
         $this->extras = new Config($this->getDataFolder() . "extras.yml", Config::YAML);
         $this->getServer()->getPluginManager()->registerEvents($this, $this);
         $this->provider->loadGames();
-	EntityFactory::getInstance()->register(SwordEntity::class, function(World $world, CompoundTag $nbt) : SwordEntity{
-	    return new SwordEntity(EntityDataHelper::parseLocation($nbt, $world), null, $nbt);
-	}, ['SwordEntity']);
+	    EntityFactory::getInstance()->register(SwordEntity::class, function(World $world, CompoundTag $nbt) : SwordEntity{
+	       return new SwordEntity(EntityDataHelper::parseLocation($nbt, $world), null, $nbt);
+	    }, ['SwordEntity']);
+        EntityFactory::getInstance()->register(NpcEntity::class, function(World $world, CompoundTag $nbt) use ($class): Entity {
+            return new $class(EntityDataHelper::parseLocation($nbt, $world), Human::parseSkinNBT($nbt), $nbt);
+        }, ["MurderMysteryNpc"]);
     }
 	    
     public function onCommand(CommandSender $sender, Command $cmd, string $str, array $args) : bool{
@@ -77,6 +82,7 @@ class MurderMystery extends PluginBase implements Listener{
                         $sender->sendMessage("§b/murdermystery edit <name>§f: §7Edit a game of murder mystery");
                         $sender->sendMessage("§b/murdermystery list§f: §7Shows a list of murder mystery games");
                         $sender->sendMessage("§b/murdermystery savegames§f: §7Save all murder mystery games");
+                        $sender->sendMessage("§b/murdermystery npc§f: §7Spawn an murdermystery entity");
                     }
                     $sender->sendMessage("§b/murdermystery join§f: §7Join an available game of murder mystery");
                     $sender->sendMessage("§b/murdermystery quit§f: §cLeave!");
@@ -197,6 +203,15 @@ class MurderMystery extends PluginBase implements Listener{
                     $this->provider->saveGames();
                     $sender->sendMessage($this->prefix . "§7All games have been saved!");
                 break;
+            
+        case "npc":
+            if(!$sender->hasPermission("murdermystery.op")){
+                $sender->sendMessage($this->noPerms);
+                break;
+            }
+            $entity = new NpcEntity($player->getLocation(), $player->getSkin());
+            $entity->spawnToAll();
+        break;
 			    
 		case "quit":
 		    if($sender->hasPermission("murdermystery.noop")){
