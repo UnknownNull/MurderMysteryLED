@@ -8,7 +8,7 @@ use mm\game\Game;
 
 class CooldownTask extends Task{
     
-    public $plugin;
+    public Game $plugin;
 
     public function __construct(Game $plugin){
         $this->plugin = $plugin;

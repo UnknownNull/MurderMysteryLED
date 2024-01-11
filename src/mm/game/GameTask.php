@@ -18,7 +18,7 @@ use mm\utils\Vector;
 
 class GameTask extends Task{
 
-    protected $plugin;
+    protected Game $plugin;
 
     public $startTime = 31;
     public $gameTime = 5 * 60;
