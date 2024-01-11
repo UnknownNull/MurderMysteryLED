@@ -4,16 +4,16 @@ An MurderMystery plugin mean't for pocketmine
 # Setup
 [Click here to be redirected to the setup video](https://youtu.be/WtCOuMJkXbI)
 # Status
-- **WIP/Work-In-Progress**
+- **Working**
 
 # The Basics Todo-List
 - [X] Scoreboard
-- [ ] BossBar - Will be done soon
+- [ ] BossBar
 - [X] The Basics of MurderMystery
 - [X] Commands & Permissions
 # Entity Todo-List
-- [X] Throwable-Sword
-- [ ] Dead Body Entity - ???
+- [ ] Throwable-Sword [However code has been done just not **Fully working**]
+- [ ] Dead Body Entity
 # Commands Todo-List
 - [X] Join Command (the join command is also basically the random cmd)
 - [ ] Quit Command 
@@ -34,5 +34,6 @@ if you wanna help transfer this plugin to PM4, open a pull request, if the pull 
 - ItsToxicGG - Helped out Transferring API 3.0.0 - 5.0.0
 # Contributers
 **Contributed To The Project**
-- fernanACM did contributed to help fix bugs
-- Faizx511x did contributed to help fix bugs
+- fernanACM did contributed to help fix bugs/issues/glitches
+- Faizx511x did contributed to help fix bugs/issues/glitches
+- UnknownNull did contributed to help fix bugs/issues/glitches
