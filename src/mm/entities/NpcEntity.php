@@ -35,10 +35,9 @@ class NpcEntity extends Human {
 
     public function updateNameTag(): void {
         $this->setNameTag(ColorUtils::translate(
-            "{YELLOW}{BOLD}CLICK TO PLAY{RESET}\n" .
-            "{YELLOW}{BOLD}MURDER MYSTERY{RESET}\n" .
-            "{YELLOW}{BOLD}CLASSIC\n" . 
-            "{YELLOW}{BOLD}PLAYERS: ?"
+            "{YELLOW}{BOLD}Murder Mystery{RESET}\n" .
+            "{YELLOW}{BOLD}Left Click To Play\n" .
+            "{RED}JOIN NOW"
         ));
     }
 
@@ -57,6 +56,6 @@ class NpcEntity extends Human {
             return;
         }
 
-        Server::getInstance()->getCommandMap()->dispatch($player, "mm join");
+        Server::getInstance()->getCommandMap()->dispatch($damager, "mm join");
     }
 }
