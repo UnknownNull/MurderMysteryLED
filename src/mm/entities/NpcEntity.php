@@ -34,7 +34,6 @@ class NpcEntity extends Human {
     }
 
     public function updateNameTag(): void {
-        $amount = $this->getSessionsCount();
         $this->setNameTag(ColorUtils::translate(
             "{YELLOW}{BOLD}CLICK TO PLAY{RESET}\n" .
             "{YELLOW}{BOLD}MURDER MYSTERY{RESET}\n" .
