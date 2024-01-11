@@ -443,7 +443,7 @@ class Game implements Listener{
         foreach($this->spectators as $spectator){
             $this->broadcastMessage($spectator, "§cYOU LOSE! §6The Murderer killed everyone!");
             $this->broadcastTitle($spectator, "§cYOU LOSE!", "§6The Murderer killed everyone!");
-            $this->resetGold($player);
+            $this->resetGold($spectator);
         }
 
         $murderer = $this->getMurderer();
