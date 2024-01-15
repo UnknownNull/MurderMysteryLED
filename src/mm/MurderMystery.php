@@ -556,22 +556,18 @@ class MurderMystery extends PluginBase implements Listener{
         }
     }
 
-    public function spawnSword(Player $player){
-        $nbt = NBTEntity::createBaseNBT( // probably should not use NBTEntity
-            $player->getTargetBlock(1),
-            $player->getDirectionVector(),
-            $player->getLocation()->getYaw() - 75,
-            $player->getLocation()->getPitch()
-        );
-        
-        $sword = new SwordEntity($player->getLocation(), $nbt);
-        $sword->setMotion($sword->getMotion()->multiply(1.4));
-        $sword->setPose();
-        $sword->setInvisible();
-        $sword->spawnToAll();
-        $this->plugin->getScheduler()->scheduleRepeatingTask(new CollideTask($this, $sword), 0);
-        $this->plugin->getScheduler()->scheduleDelayedTask(new DespawnSwordEntity($sword), 100);
-    }
+    public function spawnSword(Player $player): void
+    {
+       $sword = new SwordEntity($player->getLocation());
+    
+       $sword->setMotion($sword->getMotion()->multiply(1.4));
+       $sword->setPose();
+       $sword->setInvisible();
+       $sword->spawnToAll();
+
+       $this->getScheduler()->scheduleRepeatingTask(new CollideTask($this, $sword), 0);
+       $this->getScheduler()->scheduleDelayedTask(new DespawnSwordEntity($sword), 100);
+    }    
 
     public function joinGame(Player $player){
         $arena = $this->gamechooser->getRandomGame();
