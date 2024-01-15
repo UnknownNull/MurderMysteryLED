@@ -53,7 +53,8 @@ use pocketmine\network\mcpe\protocol\types\ScorePacketEntry;
 
 use mm\MurderMystery;
 use pocketmine\network\mcpe\protocol\PlaySoundPacket;
-use mm\utils\{Vector, SwordEntity};
+use mm\utils\{Vector};
+use mm\entities\{NpcEntity, SwordEntity};
 use pocketmine\entity\Location;
 use mm\tasks\{ArrowTask, CollideTask, CooldownTask, DespawnSwordEntity, SpawnGoldTask, UpdatePlayerPositionTask};
 use mm\utils\TimeUtils;

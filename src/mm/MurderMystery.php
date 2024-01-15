@@ -18,10 +18,10 @@ use pocketmine\entity\Human;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\world\World;
 // $event
-use mm\utils\{GameChooser, SwordEntity, Vector};
-use mm\entities\{NpcEntity};
+use mm\utils\{GameChooser, Vector};
+use mm\entities\{NpcEntity, SwordEntity};
 use mm\provider\Provider;
-use mm\game\Game;
+use mm\game\{Game, NBTEntity};
 
 use Vecnavium\FormsUI\{SimpleForm, CustomForm};
 
@@ -83,6 +83,7 @@ class MurderMystery extends PluginBase implements Listener{
                         $sender->sendMessage("§b/murdermystery list§f: §7Shows a list of murder mystery games");
                         $sender->sendMessage("§b/murdermystery savegames§f: §7Save all murder mystery games");
                         $sender->sendMessage("§b/murdermystery npc§f: §7Spawn an murdermystery entity");
+                        $sender->sendMessage("§b/murdermystery sword§f: §7Spawn an murdermystery sword entity [TESTING]");
                     }
                     $sender->sendMessage("§b/murdermystery join§f: §7Join an available game of murder mystery");
                     $sender->sendMessage("§b/murdermystery quit§f: §cLeave!");
@@ -211,6 +212,14 @@ class MurderMystery extends PluginBase implements Listener{
             }
             $entity = new NpcEntity($sender->getLocation(), $sender->getSkin());
             $entity->spawnToAll();
+        break;
+
+        case "sword":
+            if(!$sender->hasPermission("murdermystery.op")){
+                $sender->sendMessage($this->noPerms);
+                break;
+            }
+            $this->spawnSword($sender);
         break;
 			    
 		case "quit":
@@ -545,6 +554,23 @@ class MurderMystery extends PluginBase implements Listener{
             $this->gold[$player->getName()] = ($index + 1);
             return;
         }
+    }
+
+    public function spawnSword(Player $player){
+        $nbt = NBTEntity::createBaseNBT( // probably should not use NBTEntity
+            $player->getTargetBlock(1),
+            $player->getDirectionVector(),
+            $player->getLocation()->getYaw() - 75,
+            $player->getLocation()->getPitch()
+        );
+        
+        $sword = new SwordEntity($player->getLocation(), $nbt);
+        $sword->setMotion($sword->getMotion()->multiply(1.4));
+        $sword->setPose();
+        $sword->setInvisible();
+        $sword->spawnToAll();
+        $this->plugin->getScheduler()->scheduleRepeatingTask(new CollideTask($this, $sword), 0);
+        $this->plugin->getScheduler()->scheduleDelayedTask(new DespawnSwordEntity($sword), 100);
     }
 
     public function joinGame(Player $player){

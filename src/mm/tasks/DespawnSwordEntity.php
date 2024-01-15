@@ -3,7 +3,7 @@
 namespace mm\tasks;
 
 use pocketmine\scheduler\Task;
-use mm\utils\SwordEntity;
+use mm\entities\SwordEntity;
 
 class DespawnSwordEntity extends Task{
     
