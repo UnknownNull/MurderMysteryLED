@@ -12,11 +12,11 @@ An MurderMystery plugin mean't for pocketmine
 - [X] The Basics of MurderMystery
 - [X] Commands & Permissions
 # Entity Todo-List
-- [ ] Throwable-Sword [However code has been done just not **Fully working**]
+- [ ] Throwable-Sword [**ON HOLD**]
 - [X] MurderMystery Join Npc
 - [ ] Dead Body Entity
 # Commands Todo-List
-- [X] Join Command (the join command is also basically the random cmd)
+- [X] Join Command
 - [ ] Quit Command 
 - [X] SetUp Command (/murdermystery edit)
 - [X] Create Command
