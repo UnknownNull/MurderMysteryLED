@@ -133,7 +133,7 @@ class GameTask extends Task{
                             } else {
                                 $player->sendMessage("§cYou got a compass! §eThe compass points to the nearest player!");
                             }
-                            $this->plugin->setItem(345, 4, $player);
+                            $this->plugin->setItem(VanillaItems::COMPASS(), 4, $player);
                         }
                     break;
 
