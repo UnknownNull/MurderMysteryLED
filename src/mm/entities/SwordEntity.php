@@ -44,7 +44,7 @@ class SwordEntity extends Entity{
     protected function sendSpawnPacket(Player $player) : void{
         parent::sendSpawnPacket($player);
         $pk = new MobEquipmentPacket();
-        $pk->actorRuntimeId = $this->getId();
+        $pk->actorRuntimeId = $player->getId();
         $pk->item = ItemStackWrapper::legacy(new ItemStack(20138, 0, 1, 0, null, [], []));
         $pk->inventorySlot = 0;
         $pk->hotbarSlot = 0;
