@@ -15,7 +15,7 @@ use pocketmine\event\entity\{
     EntityDamageByEntityEvent,
     EntityDamageByChildEntityEvent,
     ProjectileLaunchEvent,
-    EntityInventoryChangeEvent,
+//    EntityInventoryChangeEvent,
     EntityItemPickupEvent,
     EntityTeleportEvent,
     ProjectileHitEntityEvent
@@ -467,7 +467,7 @@ class Game implements Listener{
                 $this->playSound($spectator, "random.levelup");
                 $this->broadcastMessage($spectator, "§aYOU WIN! §6The Murderer has been stopped!");
                 $this->broadcastTitle($spectator, "§aYOU WIN!", "§6The Murderer has been stopped!");
-                $this->resetGold($player);
+                $this->resetGold($spectator);
             }
         }
 
@@ -793,7 +793,7 @@ class Game implements Listener{
                         }
                     }
 
-                    $this->dropItem($this->map, VanillaItems::BOW(), $player);
+                    $this->dropItem($this->map, VanillaItems::BOW(), $player->getPosition());
                 }
             }
             $this->disconnectPlayer($player);

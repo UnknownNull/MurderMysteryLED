@@ -2,6 +2,8 @@
 
 namespace mm;
 
+use mm\tasks\CollideTask;
+use mm\tasks\DespawnSwordEntity;
 use pocketmine\plugin\PluginBase;
 use pocketmine\command\{CommandSender, Command};
 use pocketmine\player\Player;
@@ -67,8 +69,11 @@ class MurderMystery extends PluginBase implements Listener{
         }, ["MurderMysteryNpc"]);
     }
 	    
-    public function onCommand(CommandSender $sender, Command $cmd, string $str, array $args) : bool{
-        if(strtolower($cmd) == "murdermystery"){
+    public function onCommand(CommandSender $sender, Command $command, string $label, array $args) : bool{
+        if (!$sender instanceof Player){
+            return false;
+        }
+        if(strtolower($command) == "murdermystery"){
             if(count($args) == 0){
                 $sender->sendMessage("§7Use §b/murdermystery help");
                 return true;
@@ -225,25 +230,27 @@ class MurderMystery extends PluginBase implements Listener{
 		case "quit":
 		    if($sender->hasPermission("murdermystery.noop")){
 			    
-		    }
+
                     if(!$sender instanceof Player){
                         $sender->sendMessage("§cUse this command in-game!");
                         break;
                     }
 			    
 		    $sender->sendMessage("This is Comming Soon pls try again soon!");
+            }
                 break;
 			    
                 case "join": // item
 		    if($sender->hasPermission("murdermystery.noop")){
 			    
-		    }
+
                     if(!$sender instanceof Player){
                         $sender->sendMessage("§cUse this command in-game!");
                         break;
                     }
 
                     $this->joinGame($sender);
+            }
                 break;
 
                 default:
@@ -403,13 +410,13 @@ class MurderMystery extends PluginBase implements Listener{
             $game = $this->editors[$player->getName()];
             switch($customName){
                 case "§r§l§aComplete":
-                   $ev->cancel();
+                    $event->cancel();
                 break;
                 case "§r§l§6Setup":
-                   $ev->cancel();
+                    $event->cancel();
                 break;
                 case "§r§l§cLeave / Done":
-                  $ev->cancel();
+                    $event->cancel();
                 break;
             }
         }
