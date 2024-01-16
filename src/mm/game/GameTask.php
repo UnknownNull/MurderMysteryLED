@@ -2,6 +2,7 @@
 
 namespace mm\game;
 
+use pocketmine\item\VanillaItems;
 use pocketmine\world\{
     World,
     Position
