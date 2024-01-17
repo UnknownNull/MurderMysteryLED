@@ -75,7 +75,7 @@ class Game implements Listener{
     public $map = null;
 
     public $data = [];
-    public $gold = [];
+    public array $gold = [];
     public $players = [];
     public $spectators = [];
     public $cooldown = [];
@@ -724,22 +724,28 @@ class Game implements Listener{
     }
 
 
-    public function addGold(Player $player): void {
+    public function addGold(Player $player, int $amount): void {
         $playerName = $player->getName();
-        if (!isset($this->gold[$playerName])) {
-            $this->gold[$playerName] = 0;
-        }
-        $this->gold[$playerName]++;
+        $this->ensurePlayerExists($playerName);
+        $this->gold[$playerName] += $amount;
     }
 
     public function getGold(Player $player): int {
         $playerName = $player->getName();
-        return isset($this->gold[$playerName]) ? $this->gold[$playerName] : 0;
-    }    
-    
+        $this->ensurePlayerExists($playerName);
+        return $this->gold[$playerName] ?? 0;
+    }
+
     public function resetGold(Player $player): void {
         $playerName = $player->getName();
+        $this->ensurePlayerExists($playerName);
         $this->gold[$playerName] = 0;
+    }
+
+    private function ensurePlayerExists(string $playerName): void {
+        if (!isset($this->gold[$playerName])) {
+            $this->gold[$playerName] = 0;
+        }
     }
 
     public function onChat(PlayerChatEvent $event){
@@ -839,6 +845,7 @@ class Game implements Listener{
             }
     
             if ($item->getTypeId() == ItemTypeIds::GOLD_INGOT) {
+                $this->addGold($player, 1);
                 if ($inv->contains(VanillaItems::GOLD_INGOT())) {
                     $this->changeInv[$player->getName()] = $player;
                     $inv->addItem(VanillaItems::GOLD_INGOT(), 0, 8);
@@ -863,7 +870,6 @@ class Game implements Listener{
                             $player->sendMessage("§cMurderer: §r" . $this->getMurderer()->getName());
                             $player->sendMessage("To check players role, pause menu, on the right side find the players name button, click on it and you'll see his skin.");
                             $player->sendTitle("§aRole Detector!", "§eClaimed!");
-                            $this->giveBow($player);
                             $this->resetGold($player);
                         }
                     }
