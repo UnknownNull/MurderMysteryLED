@@ -38,17 +38,16 @@ class SwordEntity extends Entity{
     public $width = 2.0;
     public $height = 2.0;
 
-    // This feature may aswell stay on hold because PMMP has an issue
-    // [21:12:21.288] [Server thread/CRITICAL]: Error: "Call to undefined method pocketmine\network\mcpe\protocol\MobEquipmentPacket::getTypeId()" 
-    // (EXCEPTION) in "pmsrc/vendor/pocketmine/bedrock-protocol/src/serializer/PacketSerializer" at line 453
     protected function sendSpawnPacket(Player $player) : void{
         parent::sendSpawnPacket($player);
-        $pk = new MobEquipmentPacket();
-        $pk->actorRuntimeId = $player->getId();
-        $pk->item = ItemStackWrapper::legacy(new ItemStack(20138, 0, 1, 0, null, [], []));
-        $pk->inventorySlot = 0;
-        $pk->hotbarSlot = 0;
-        $player->sendData($this->getViewers(), [$pk]);
+        $pk = MobEquipmentPacket::create(
+            $this->getId(),
+            ItemStackWrapper::legacy(TypeConverter::getInstance()->coreItemStackToNet(VanillaItems::IRON_SWORD())),
+            0,
+            0,
+            ContainerIds::INVENTORY
+        );
+        $player->getNetworkSession()->sendDataPacket($pk);
     }
 
     public function setPose() : void{
