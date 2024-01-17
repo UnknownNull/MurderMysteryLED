@@ -5,7 +5,7 @@ namespace mm\game;
 use pocketmine\event\Listener;
 use pocketmine\block\Block;
 use pocketmine\event\player\PlayerItemUseEvent;
-use pocketmine\item\Item;
+use pocketmine\item\{Item, ItemTypeIds};
 use pocketmine\entity\object\ItemEntity;
 
 use pocketmine\event\entity\{
@@ -15,7 +15,6 @@ use pocketmine\event\entity\{
     EntityDamageByEntityEvent,
     EntityDamageByChildEntityEvent,
     ProjectileLaunchEvent,
-//    EntityInventoryChangeEvent,
     EntityItemPickupEvent,
     EntityTeleportEvent,
     ProjectileHitEntityEvent
@@ -666,8 +665,6 @@ class Game implements Listener{
             $this->changeInv[$this->shooter->getName()] = $this->shooter->getName();
             $this->shooter->getInventory()->removeItem($arrow);
             unset($this->changeInv[$this->shooter->getName()]);
-            // this needs to be fixed. No cooldown on shoot mb cuz
-            // shooter aint defined
             if($this->shooter === $detective){
                 $this->plugin->getScheduler()->scheduleDelayedTask(new ArrowTask($this), 140);
                 $this->cooldown[$detective->getName()] = microtime(true) + 7;
@@ -811,12 +808,8 @@ class Game implements Listener{
         $this->checkPlayers();
     }
 
-    public function setSpawnPositionPacket(Player $player, Vector3 $pos){ // SpawnPositionPacket
-        $pk = new SetSpawnPositionPacket();
-        
-        $pk->dimension = DimensionIds::OVERWORLD;
-        $pk->spawnType = SetSpawnPositionPacket::TYPE_WORLD_SPAWN;
-        $player->getNetworkSession()->sendDataPacket($pk);
+    public function setSpawnPositionPacket(Player $player, Vector3 $pos){ 
+       // NAH
 	}
 
     public function onDrop(PlayerDropItemEvent $event){
@@ -837,7 +830,7 @@ class Game implements Listener{
         $inv = $player->getInventory();
     
         if ($this->isPlaying($player)) {
-            if ($item == VanillaItems::BOW()) {
+            if ($item->getTypeId() == ItemTypeIds::BOW) {
                 if ($player !== $this->getMurderer()) {
                     $this->newDetective($player);
                 } else {
@@ -845,7 +838,7 @@ class Game implements Listener{
                 }
             }
     
-            if ($item == VanillaItems::GOLD_INGOT()) {
+            if ($item->getTypeId() == ItemTypeIds::GOLD_INGOT) {
                 if ($inv->contains(VanillaItems::GOLD_INGOT())) {
                     $this->changeInv[$player->getName()] = $player;
                     $inv->addItem(VanillaItems::GOLD_INGOT(), 0, 8);
@@ -853,46 +846,38 @@ class Game implements Listener{
                 } else {
                     $this->setItem(VanillaItems::GOLD_INGOT(), 8, $player);
                 }
-    
-                if ($player !== $this->getDetective()) {
-                    $this->checkGold($player);
+
+                if($player !== $this->getDetective()){
+                    if($this->getGold($player) == $this->plugin->extras->get("MM-Bow-Gold-Required")){
+                        if($this->isPlaying($player)){
+                            $player->sendTitle("§a+1 Bow Shot!", "§eYou collected 10 gold and got an arrow!");
+                            $this->giveBow($player);
+                            $this->resetGold($player);
+                        }
+                    }
                 }
-                $this->addGold($player);
-                $this->checkGold2($player);
+
+                if($player === $this->getDetective()){
+                    if($this->getGold($player) == $this->plugin->extras->get("MM-Role-Detector-Gold-Required")){
+                        if($this->isPlaying($player)){
+                            $player->sendMessage("§cMurderer: §r" . $this->getMurderer()->getName());
+                            $player->sendMessage("To check players role, pause menu, on the right side find the players name button, click on it and you'll see his skin.");
+                            $player->sendTitle("§aRole Detector!", "§eClaimed!");
+                            $this->giveBow($player);
+                            $this->resetGold($player);
+                        }
+                    }
+                }
             }
         }
     }
 
-    public function checkGold(Player $player){ // restart
-        if($this->plugin->extras->get("MM-Bow-Gold") === true){
-            if($this->isPlaying($player)){
-                if($this->getGold($player) == $this->plugin->extras->get("MM-Bow-Gold-Required")){
-                  $this->setItem(VanillaItems::BOW(), 0, $player);
-                  $this->changeInv[$player->getName()] = $player;
-                  $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
-                  $player->getInventory()->removeItem(VanillaItems::GOLD_INGOT(), 0, 10);
-                  unset($this->changeInv[$player->getName()]);
-                  $this->resetGold($player);
-                  $player->sendTitle("§a+1 Bow Shot!", "§eYou collected 10 gold and got an arrow!");
-                }
-            }
-        }
-    }
-
-    public function checkGold2(Player $player){ // restart
-        if($this->plugin->extras->get("MM-Role-Detector") === true){ // getConfig
-           if($this->isPlaying($player)){
-             if($this->getGold($player) == $this->plugin->extras->get("MM-Role-Detector-Gold-Required")){
-                $this->setItem(VanillaItems::BOW(), 0, $player);
-                $this->changeInv[$player->getName()] = $player;
-                $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
-                $player->getInventory()->removeItem(VanillaItems::GOLD_INGOT(), 0, 10);
-                unset($this->changeInv[$player->getName()]);
-                $this->resetGold($player);
-                $player->sendMessage("Murderer: " . $this->getMurderer()->getName());
-              }
-           }
-        }
+    public function giveBow(Player $player){
+        $this->setItem(VanillaItems::BOW(), 0, $player);
+        $this->changeInv[$player->getName()] = $player;
+        $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
+        $player->getInventory()->removeItem(VanillaItems::GOLD_INGOT(), 0, 10);
+        unset($this->changeInv[$player->getName()]);
     }
 
     public function onInvChange(InventoryTransactionEvent $event){ // SpawnPositionPacket
