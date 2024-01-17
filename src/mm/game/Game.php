@@ -815,7 +815,18 @@ class Game implements Listener{
     }
 
     public function setSpawnPositionPacket(Player $player, Vector3 $pos){ 
-       // NAH
+       $blockPosition = new BlockPosition(
+        round($pos->x),
+        round($pos->y),
+        round($pos->z)
+    );
+
+    $pk = new SetSpawnPositionPacket();
+    $pk->spawnPosition = $blockPosition;
+    $pk->dimension = DimensionIds::OVERWORLD;
+    $pk->spawnType = SetSpawnPositionPacket::TYPE_WORLD_SPAWN;
+    $pk->causingBlockPosition = $blockPosition;
+    $player->getNetworkSession()->sendDataPacket($pk);
 	}
 
     public function onDrop(PlayerDropItemEvent $event){
@@ -826,7 +837,7 @@ class Game implements Listener{
     }
 
     public function onPickup(EntityItemPickupEvent $event){
-        $player = $event->getOrigin();
+        $player = $event->getEntity();
         $item = $event->getItem();
     
         if (!$player instanceof Player) {
