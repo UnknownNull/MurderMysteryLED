@@ -11,6 +11,8 @@ use pocketmine\player\Player;
 use pocketmine\network\mcpe\protocol\MobEquipmentPacket;
 use pocketmine\network\mcpe\protocol\types\inventory\ItemStackWrapper;
 use pocketmine\world\format\io\GlobalItemDataHandlers;
+use pocketmine\network\mcpe\convert\TypeConverter;
+use pocketmine\network\mcpe\protocol\types\inventory\ContainerIds;
 use pocketmine\item\Item;
 
 class SwordEntity extends Entity{
