@@ -859,7 +859,7 @@ class Game implements Listener{
                 $this->addGold($player, 1);
                 if ($inv->contains(VanillaItems::GOLD_INGOT())) {
                     $this->changeInv[$player->getName()] = $player;
-                    $inv->addItem(VanillaItems::GOLD_INGOT(), 0, 8);
+                    $inv->setItem(8, VanillaItems::GOLD_INGOT());
                     unset($this->changeInv[$player->getName()]);
                 } else {
                     $this->setItem(VanillaItems::GOLD_INGOT(), 8, $player);
