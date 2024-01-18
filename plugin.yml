@@ -2,6 +2,7 @@ name: MurderMysteryLED
 version: 2.3
 api: [5.0.0]
 authors: ['LeyKey', 'DanteDevs', 'ItsToxicGG']
+contributors: ['UnknownNull', 'Smorted', 'fernanACM', 'Faizx511x']
 main: mm\MurderMystery
 
 commands:
