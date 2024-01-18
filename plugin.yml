@@ -1,7 +1,7 @@
 name: MurderMysteryLED
 version: 2.3
 api: [5.0.0]
-author: LeyKey
+authors: ['LeyKey', 'DanteDevs', 'ItsToxicGG']
 main: mm\MurderMystery
 
 commands:
@@ -18,5 +18,5 @@ permissions:
     description: "Permission to all Non Op Commands!"
     default: true
   murdermystery.forcestart:
-    description: "Force start a game"
+    description: "Force start a game, WIP"
     default: op
