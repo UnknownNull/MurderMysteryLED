@@ -91,7 +91,7 @@ class MurderMystery extends PluginBase implements Listener{
                         $sender->sendMessage("§b/murdermystery sword§f: §7Spawn an murdermystery sword entity [TESTING]");
                     }
                     $sender->sendMessage("§b/murdermystery join§f: §7Join an available game of murder mystery");
-                    $sender->sendMessage("§b/murdermystery quit§f: §cLeave!");
+                    $sender->sendMessage("§b/murdermystery quit§f: §cLeave/Quit an game of murdermystery!");
                 break;
 
                 case "create":
@@ -236,7 +236,7 @@ class MurderMystery extends PluginBase implements Listener{
                         break;
                     }
 			    
-		    $sender->sendMessage("This is Comming Soon pls try again soon!");
+		    $this->quitGame($sender);
             }
                 break;
 			    
@@ -565,6 +565,7 @@ class MurderMystery extends PluginBase implements Listener{
 
     public function spawnSword(Player $player): void
     {
+       // Dont move :(
        $sword = new SwordEntity($player->getLocation());
     
        $sword->setMotion($sword->getMotion()->multiply(1.4));
@@ -572,7 +573,8 @@ class MurderMystery extends PluginBase implements Listener{
        $sword->setInvisible();
        $sword->spawnToAll();
 
-       $this->getScheduler()->scheduleRepeatingTask(new CollideTask($this, $sword), 0);
+       $arena = $this->gamechooser->getRandomGame();
+       $this->getScheduler()->scheduleRepeatingTask(new CollideTask($arena, $sword), 0);
        $this->getScheduler()->scheduleDelayedTask(new DespawnSwordEntity($sword), 100);
     }    
 
@@ -583,5 +585,14 @@ class MurderMystery extends PluginBase implements Listener{
             return;
         }
         $player->sendMessage("§cSomething went wrong while connecting to an available game, please try again!");
+    }
+
+    public function quitGame(Player $player){
+	$arena = $this->gamechooser->getRandomGame();
+        if(!is_null($arena)){
+            $arena->disconnectPlayer($player);
+            return;
+        }
+        $player->sendMessage("§cSorry but you are not in a game right now!");
     }
 }
