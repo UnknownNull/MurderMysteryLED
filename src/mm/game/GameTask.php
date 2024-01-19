@@ -112,6 +112,7 @@ class GameTask extends Task{
                             $player->sendMessage("§eThe game ends in §c04:00 §eminutes!");
                             if($this->plugin->plugin->extras->getConfig()->get("Randomise") === true){
                                $this->randomisePlayerNames($player);
+                               $this->randomisePlayerSkins(/** No $player lol */);
                             }
                         }
                     break;
@@ -127,6 +128,7 @@ class GameTask extends Task{
                             $player->sendMessage("§eThe game ends in §c02:00 §eminutes!");
                             if($this->plugin->plugin->extras->getConfig()->get("Randomise") === true){
                                 $this->randomisePlayerNames($player);
+                                $this->randomisePlayerSkins(/** No $player lol */);
                             }
                         }
                     break;
@@ -143,6 +145,7 @@ class GameTask extends Task{
                             $this->plugin->setItem(VanillaItems::COMPASS(), 4, $player);
                             if($this->plugin->plugin->extras->getConfig()->get("Randomise") === true){
                                 $this->randomisePlayerNames($player);
+                                $this->randomisePlayerSkins(/** No $player lol */);
                             }
                         }
                     break;

@@ -361,7 +361,7 @@ class Game implements Listener{
     public function randomisePlayerNames(Player $initiatingPlayer) {
         $gameTime = $this->task->gameTime;
         $totalGameDuration = 5 * 60;
-        
+
         $shouldRandomize = (mt_rand(0, 1) == 1);
     
         if ($gameTime > 0 && $gameTime < $totalGameDuration && $shouldRandomize) {
@@ -384,10 +384,23 @@ class Game implements Listener{
         }
     }
 
-    public function randomisePlayerSkins(){
-        // WIP
+    public function randomisePlayerSkins() {
+        $players = $this->players;
+        $totalPlayers = count($players);
+    
+        for ($i = $totalPlayers - 1; $i > 0; $i--) {
+            $j = mt_rand(0, $i);
+            $temp = $players[$i];
+            $players[$i] = $players[$j];
+            $players[$j] = $temp;
+        }
+    
+        foreach ($players as $index => $randomizedPlayer) {
+            $randomizedSkin = $players[($index + 1) % $totalPlayers]->getSkin();
+            $randomizedPlayer->setSkin($randomizedSkin);
+        }
     }
-
+    
     public function giveRoles(){
         $innocents = $this->players;
 
@@ -721,7 +734,7 @@ class Game implements Listener{
         }
     }
 
-    public function onDamage(EntityDamageEvent $event){ // onInteract -- unrelated
+    public function onDamage(EntityDamageEvent $event){
         $player = $event->getEntity();	    
         if($player instanceof Player){
             if($this->isPlaying($player)){
