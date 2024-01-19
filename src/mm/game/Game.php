@@ -7,6 +7,7 @@ use pocketmine\block\Block;
 use pocketmine\event\player\PlayerItemUseEvent;
 use pocketmine\item\{Item, ItemTypeIds};
 use pocketmine\entity\object\ItemEntity;
+use pocketmine\network\mcpe\protocol\types\BlockPosition;
 
 use pocketmine\event\entity\{
     EntityShootBowEvent,
