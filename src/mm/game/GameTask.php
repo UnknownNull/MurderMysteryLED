@@ -110,7 +110,9 @@ class GameTask extends Task{
                     case 60 * 4:
                         foreach($this->plugin->players as $player){
                             $player->sendMessage("§eThe game ends in §c04:00 §eminutes!");
-                            $this->randomisePlayerNames($player);
+                            if($this->plugin->plugin->extras->getConfig()->get("Randomise") === true){
+                               $this->randomisePlayerNames($player);
+                            }
                         }
                     break;
 
@@ -123,7 +125,9 @@ class GameTask extends Task{
                     case 60 * 2:
                         foreach($this->plugin->players as $player){
                             $player->sendMessage("§eThe game ends in §c02:00 §eminutes!");
-                            $this->randomisePlayerNames($player);
+                            if($this->plugin->plugin->extras->getConfig()->get("Randomise") === true){
+                                $this->randomisePlayerNames($player);
+                            }
                         }
                     break;
 
@@ -137,7 +141,9 @@ class GameTask extends Task{
                                 $player->sendMessage("§cYou got a compass! §eThe compass points to the nearest player!");
                             }
                             $this->plugin->setItem(VanillaItems::COMPASS(), 4, $player);
-                            $this->randomisePlayerNames($player);
+                            if($this->plugin->plugin->extras->getConfig()->get("Randomise") === true){
+                                $this->randomisePlayerNames($player);
+                            }
                         }
                     break;
 
