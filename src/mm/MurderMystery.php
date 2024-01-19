@@ -240,7 +240,7 @@ class MurderMystery extends PluginBase implements Listener{
             }
                 break;
 			    
-                case "join": // item
+                case "join":
 		    if($sender->hasPermission("murdermystery.noop")){
 			    
 
@@ -565,8 +565,12 @@ class MurderMystery extends PluginBase implements Listener{
 
     public function spawnSword(Player $player): void
     {
-       // Dont move :(
-       $sword = new SwordEntity($player->getLocation());
+       // WIP
+       $sword = new SwordEntity(
+          $player->getLocation(),
+          $player->getLocation()->getYaw() - 75,
+          $player->getLocation()->getPitch()
+       );
     
        $sword->setMotion($sword->getMotion()->multiply(1.4));
        $sword->setPose();
