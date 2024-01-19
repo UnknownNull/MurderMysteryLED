@@ -70,6 +70,7 @@ class Game implements Listener{
     public $plugin;
     public $task;
 
+    private $randomizeCounter = 0;
     public $phase = 0;
 
     public $setup = false;
@@ -354,14 +355,38 @@ class Game implements Listener{
             $player->getArmorInventory()->clearAll();
             $player->getCursorInventory()->clearAll();
             unset($this->changeInv[$player->getName()]);
-	}
+	    }
     }
 
-    public function randomisePlayerNames(Player $player){
+    public function randomisePlayerNames(Player $initiatingPlayer) {
+        $gameTime = $this->task->gameTime;
+        $totalGameDuration = 5 * 60;
+        
+        $shouldRandomize = (mt_rand(0, 1) == 1);
+    
+        if ($gameTime > 0 && $gameTime < $totalGameDuration && $shouldRandomize) {
+            $players = $this->players;
+            $totalPlayers = count($players);
+    
+            for ($i = $totalPlayers - 1; $i > 0; $i--) {
+                $j = mt_rand(0, $i);
+                $temp = $players[$i];
+                $players[$i] = $players[$j];
+                $players[$j] = $temp;
+            }
+    
+            foreach ($players as $index => $randomizedPlayer) {
+                $randomizedName = $players[($index + 1) % $totalPlayers]->getName();
+                $randomizedPlayer->setDisplayName($randomizedName);
+            }
+    
+            $this->randomizeCounter++;
+        }
+    }
+
+    public function randomisePlayerSkins(){
         // WIP
     }
-
-
 
     public function giveRoles(){
         $innocents = $this->players;
@@ -516,13 +541,6 @@ class Game implements Listener{
             if($item === VanillaItems::BOW()){
                 $this->shooter = $player;
             }
-            if($item === VanillaItems::IRON_SWORD()){
-                if(!isset($this->cooldown[$player->getName()])){
-                    if($this->phase == self::PHASE_GAME){
-                        $this->createSwordEntity($player);
-                    }
-                }
-            }
         }
 
         if (!$block instanceof Sign) {
@@ -565,7 +583,8 @@ class Game implements Listener{
             $target = $players[$player->getName()][$data];
 			if($target instanceof Player){
                 if($this->isPlaying($target)){
-                    $player->teleport($target->getPosition());
+                    /** Get Targets Location rather than Position */
+                    $player->teleport($target->getLocation());
                 } else {
                     $player->sendMessage("§cThis player is no longer in this game!");
                 }
@@ -639,6 +658,12 @@ class Game implements Listener{
             case "§r§l§bStart Game§r":
                 // forgot logic? WIP
                 break;
+            }
+            /** ? */
+            if($item->getTypeId() == ItemTypeId::IRON_SWORD){
+                if(!isset($this->cooldown[$player->getName()])){
+                    $this->createSwordEntity($player);
+                }
             }
         }
     }
@@ -958,7 +983,7 @@ class Game implements Listener{
                     }
                 }
             }
-        }
+        } // killPlayer
     }
 
     public function newDetective(Player $player){

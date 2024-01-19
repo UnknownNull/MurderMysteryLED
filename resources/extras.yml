@@ -18,6 +18,8 @@ Throwable-Sword-Speed: 1.4
 MM-Bow-Gold: true
 MM-Bow-Gold-Required: 10
 #
+# Randomise the player names & skins {test} {skins not yet..}
+Randomise: false
 # annouces to everyone in the server a win message
 # use {murderer}, {detective}, {shooter} or {winner} = if multiple people won it would say all the players who are alive {innocents + detective}.
 Win-Annoucement: false
