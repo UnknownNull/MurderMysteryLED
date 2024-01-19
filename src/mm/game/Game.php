@@ -191,7 +191,7 @@ class Game implements Listener{
 
     public function getDetectiveStatus(){
         if(isset($this->detective)){
-            if($this->isPlaying($this->getDetective())){
+            if(!is_null($this->getDetective()) && $this->isPlaying($this->getDetective())){
                 return "Alive";
             } else {
                 return "Dead";
@@ -663,7 +663,7 @@ class Game implements Listener{
             $this->arrow = time();
             $arrow = VanillaItems::ARROW();
             $this->changeInv[$this->shooter->getName()] = $this->shooter->getName();
-            $this->shooter->getInventory()->removeItem($arrow);
+            $this->shooter->getInventory()->remove($arrow);
             unset($this->changeInv[$this->shooter->getName()]);
             if($this->shooter === $detective){
                 $this->plugin->getScheduler()->scheduleDelayedTask(new ArrowTask($this), 140);
@@ -859,6 +859,7 @@ class Game implements Listener{
                 $this->addGold($player, 1);
                 if ($inv->contains(VanillaItems::GOLD_INGOT())) {
                     $this->changeInv[$player->getName()] = $player;
+                    $inv->remove(VanillaItems::GOLD_INGOT());
                     $inv->setItem(8, VanillaItems::GOLD_INGOT());
                     unset($this->changeInv[$player->getName()]);
                 } else {
@@ -878,7 +879,7 @@ class Game implements Listener{
                 if($player === $this->getDetective()){
                     if($this->getGold($player) == $this->plugin->extras->get("MM-Role-Detector-Gold-Required")){
                         if($this->isPlaying($player)){
-                            $player->sendMessage("§cMurderer: §r" . $this->getMurderer()->getName());
+                            $player->sendMessage("§cThe Murderer is: §r" . $this->getMurderer()->getName());
                             $player->sendMessage("To check players role, pause menu, on the right side find the players name button, click on it and you'll see his skin.");
                             $player->sendTitle("§aRole Detector!", "§eClaimed!");
                             $this->resetGold($player);
@@ -892,8 +893,8 @@ class Game implements Listener{
     public function giveBow(Player $player){
         $this->setItem(VanillaItems::BOW(), 0, $player);
         $this->changeInv[$player->getName()] = $player;
-        $player->getInventory()->addItem(VanillaItems::ARROW(), 0, 1);
-        $player->getInventory()->removeItem(VanillaItems::GOLD_INGOT(), 0, 10);
+        $player->getInventory()->addItem(VanillaItems::ARROW());
+        $player->getInventory()->remove(VanillaItems::GOLD_INGOT());
         unset($this->changeInv[$player->getName()]);
     }
 
@@ -921,8 +922,8 @@ class Game implements Listener{
             }
         }
         $this->changeInv[$player->getName()] = $player;
-        $player->getInventory()->removeItem(VanillaItems::BOW());
-        $player->getInventory()->removeItem(VanillaItems::ARROW());
+        $player->getInventory()->remove(VanillaItems::BOW());
+        $player->getInventory()->remove(VanillaItems::ARROW());
         $player->sendTitle("§aYou picked up the bow!", "§6GOAL: §eFind and kill the murderer!");
         $this->detective = $player;
         $this->setItem(VanillaItems::BOW(), 1, $player, "§aBow");
