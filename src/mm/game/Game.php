@@ -357,6 +357,12 @@ class Game implements Listener{
 	}
     }
 
+    public function randomisePlayerNames(Player $player){
+        // WIP
+    }
+
+
+
     public function giveRoles(){
         $innocents = $this->players;
 
@@ -833,9 +839,48 @@ class Game implements Listener{
     public function onDrop(PlayerDropItemEvent $event){
         $player = $event->getPlayer();
         if($this->isPlaying($player)){
-            $event->cancel();
+            $event->cancel(); // win
         }
     }
+
+    public function shooterP(Player $player){
+        $shooter = "?"; /** ? */
+        if ($this->shooter instanceof Player) {
+            $shooter = $this->shooter->getName();
+        }
+        return $shooter;
+    }
+
+    public function winAnnouncement(Player $player) {
+        if ($this->plugin->getConfig()->get("Win-Announcement") == true) {
+            $murderer = $this->getMurderer()->getName();
+            $detective = $this->getDetective()->getName();
+            $winner = '';
+    
+            if (count($this->players) == 1) {
+                if ($this->getMurderer() === $player) {
+                    $winner = "Murderer $murderer";
+                } else {
+                    $allPlayers = [];
+                    foreach ($this->players as $p) {
+                        $allPlayers[] = $p->getName();
+                    }
+                    sort($allPlayers);
+                    $winner = "Innocents " . implode(', ', $allPlayers);
+                }
+            }
+    
+            $shooter = $this->shooterP($player);
+            $winMessage = $this->plugin->getConfig()->get("Win-Announcement-Message");
+    
+            $winMessage = str_replace("{murderer}", $murderer, $winMessage);
+            $winMessage = str_replace("{detective}", $detective, $winMessage);
+            $winMessage = str_replace("{shooter}", $shooter, $winMessage);
+            $winMessage = str_replace("{winner}", $winner, $winMessage);
+    
+            $this->plugin->getServer()->broadcastMessage($winMessage);
+        }
+    }    
 
     public function onPickup(EntityItemPickupEvent $event){
         $player = $event->getEntity();
@@ -894,6 +939,10 @@ class Game implements Listener{
     public function giveBow(Player $player){
         $this->setItem(VanillaItems::BOW(), 0, $player);
         $this->changeInv[$player->getName()] = $player;
+        foreach($this->players as $all){
+           /** To add a "add a claim sound to the player when he successfully collects a bow or an arrow" */
+           $this->playSound($all, "entity.experience_orb.pickup");
+        }
         $player->getInventory()->addItem(VanillaItems::ARROW());
         $player->getInventory()->remove(VanillaItems::GOLD_INGOT());
         unset($this->changeInv[$player->getName()]);
@@ -971,14 +1020,11 @@ class Game implements Listener{
     }
 
     public function createSwordEntity(Player $player){
-        $nbt = NBTEntity::createBaseNBT(
-            $player->getTargetBlock(1),
-            $player->getDirectionVector(),
-            $player->getLocation()->getYaw() - 75,
+        $sword = new SwordEntity(
+            $player->getLocation(), 
+            $player->getLocation()->getYaw() - 75, 
             $player->getLocation()->getPitch()
         );
-        
-        $sword = new SwordEntity($player->getLocation(), $nbt);
         $sword->setMotion($sword->getMotion()->multiply($this->plugin->extras->get("Throwable-Sword-Speed")));
         $sword->setPose();
         $sword->setInvisible();

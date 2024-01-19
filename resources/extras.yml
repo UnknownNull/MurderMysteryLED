@@ -8,7 +8,7 @@ MM-Role-Detector-Gold-Required: 30
 WaterDogPE-Support: false
 #
 # Min amount of players needed to start
-Minimum-players: 2
+Minimum-players: 3
 #
 # Throwable Sword Speed - 1.4 default
 Throwable-Sword-Speed: 1.4
@@ -17,3 +17,8 @@ Throwable-Sword-Speed: 1.4
 # you set at MM-Bow-Gold-Required they'll get 1 bow & arrow
 MM-Bow-Gold: true
 MM-Bow-Gold-Required: 10
+#
+# annouces to everyone in the server a win message
+# use {murderer}, {detective}, {shooter} or {winner} = if multiple people won it would say all the players who are alive {innocents + detective}.
+Win-Annoucement: false
+Win-Annoucement-Message: "Winner/s is the {winner}, Shooter is {shooter}"
