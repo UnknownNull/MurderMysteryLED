@@ -673,7 +673,7 @@ class Game implements Listener{
                 break;
             }
             /** ? */
-            if($item->getTypeId() == ItemTypeId::IRON_SWORD){
+            if($item->getTypeId() == ItemTypeIds::IRON_SWORD){
                 if(!isset($this->cooldown[$player->getName()])){
                     $this->createSwordEntity($player);
                 }
