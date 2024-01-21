@@ -977,10 +977,8 @@ class Game implements Listener{
     public function giveBow(Player $player){
         $this->setItem(VanillaItems::BOW(), 0, $player);
         $this->changeInv[$player->getName()] = $player;
-        foreach($this->players as $all){
-           /** To add a "add a claim sound to the player when he successfully collects a bow or an arrow" */
-           $this->playSound($all, "entity.experience_orb.pickup");
-        }
+        /** To add a "add a claim sound to the player when he successfully collects a bow or an arrow" */
+        $this->playSound($player, "entity.experience_orb.pickup");
         $player->getInventory()->addItem(VanillaItems::ARROW());
         $player->getInventory()->remove(VanillaItems::GOLD_INGOT());
         unset($this->changeInv[$player->getName()]);
@@ -996,7 +994,7 @@ class Game implements Listener{
                     }
                 }
             }
-        } // killPlayer
+        }
     }
 
     public function newDetective(Player $player){
