@@ -385,7 +385,6 @@ class Game implements Listener{
 
         foreach ($players as $player) {
             $availableNames[] = $player->getName();
-            $player->sendMessage("added name");
         }
         shuffle($availableNames);
         foreach ($players as $index => $player) {
