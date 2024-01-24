@@ -467,7 +467,7 @@ class Game implements Listener{
         }
     }
 
-    // usage =
+    // win
     public function setItem(Item $item, int $slot, $player, string $name = null){
         if($this->isPlayer($player)){
             $this->changeInv[$player->getName()] = $player->getName();
@@ -513,6 +513,8 @@ class Game implements Listener{
         $this->resetGold($murderer); // pickup
 
         $this->startRestart();
+        /** This is supposed to be sent to everyone to only murderer */
+        $this->winAnnouncement($murderer);
     }
 
     public function innocentWin(){
@@ -530,6 +532,8 @@ class Game implements Listener{
             $this->broadcastMessage($player, "§aYOU WIN! §6The Murderer has been stopped!");
             $this->broadcastTitle($player, "§aYOU WIN!", "§6The Murderer has been stopped!");
             $this->resetGold($player);
+            /** This is complicated? not sure tho */
+            $this->winAnnouncement($player);
         }
         $this->startRestart();
     }
@@ -539,7 +543,7 @@ class Game implements Listener{
 
         foreach($this->map->getEntities() as $entity){
             if($entity instanceof SwordEntity && $entity instanceof Arrow && $entity instanceof ItemEntity){
-                $entity->close();
+                $entity->flagForDespawn();
             }
         }
         unset($this->murderer);

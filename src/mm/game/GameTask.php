@@ -114,9 +114,9 @@ class GameTask extends Task{
                     case 60 * 4:
                         foreach($this->plugin->players as $player){
                             $player->sendMessage("§eThe game ends in §c04:00 §eminutes!");
-                            if($this->plugin->plugin->extras->get("Randomise") === true){
-                               $this->plugin->randomisePlayerNames($player);
-                               $this->plugin->randomisePlayerSkins();
+                            if($this->plugin->plugin->extras->getConfig()->get("Randomise") === true){
+                               $this->randomisePlayerNames($player);
+                               $this->randomisePlayerSkins(/** No $player lol */);
                             }
                         }
                     break;
