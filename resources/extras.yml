@@ -11,6 +11,7 @@ WaterDogPE-Support: false
 Minimum-players: 3
 #
 # Throwable Sword Speed - 1.4 default
+# This is an beta feature
 Throwable-Sword-Speed: 1.4
 #
 # If this value is true everytime the player {innocent or murderer} gets 10 gold or any value
@@ -18,9 +19,10 @@ Throwable-Sword-Speed: 1.4
 MM-Bow-Gold: true
 MM-Bow-Gold-Required: 10
 #
-# Randomise the player names & skins {test} {skins not yet..}
+# Randomise the player names & skins - This is an beta feature
 Randomise: false
 # annouces to everyone in the server a win message
 # use {murderer}, {detective}, {shooter} or {winner} = if multiple people won it would say all the players who are alive {innocents + detective}.
+# - This is an beta feature
 Win-Annoucement: false
 Win-Annoucement-Message: "Winner/s is the {winner}, Shooter is {shooter}"

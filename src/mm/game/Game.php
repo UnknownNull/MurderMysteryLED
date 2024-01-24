@@ -1071,9 +1071,7 @@ class Game implements Listener{
 
     public function createSwordEntity(Player $player){
         $sword = new SwordEntity(
-            $player->getLocation(), 
-            $player->getLocation()->getYaw() - 75, 
-            $player->getLocation()->getPitch()
+            $player->getLocation()
         );
         $sword->setMotion($sword->getMotion()->multiply($this->plugin->extras->get("Throwable-Sword-Speed")));
         $sword->setPose();
