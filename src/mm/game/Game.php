@@ -5,6 +5,7 @@ namespace mm\game;
 use pocketmine\event\Listener;
 use pocketmine\block\Block;
 use pocketmine\event\player\PlayerItemUseEvent;
+use pocketmine\event\player\PlayerChangeSkinEvent;
 use pocketmine\item\{Item, ItemTypeIds};
 use pocketmine\entity\object\ItemEntity;
 use pocketmine\network\mcpe\protocol\types\BlockPosition;
@@ -83,6 +84,8 @@ class Game implements Listener{
     public $cooldown = [];
     public $interactDelay = [];
     public $changeInv = [];
+    public $skins = [];
+    public $nametags = [];
 
     public $arrow;
     public $shooter;
@@ -246,7 +249,7 @@ class Game implements Listener{
         $this->players[$player->getName()] = $player;
 
         foreach($this->players as $pl){
-            $pl->sendMessage("§e" . $player->getName() . " has joined (§b" . count($this->players) . "§e/§b16§e)");
+            $pl->sendMessage("§6" . $player->getName() . "§e has joined (§b" . count($this->players) . "§e/§b16§e)");
         }
 
         $this->defaultSettings($player);
@@ -304,6 +307,8 @@ class Game implements Listener{
         $player->setFlying(false);
         $player->setAllowFlight(false);
         unset($this->changeInv[$player->getName()]);
+        $this->skins[$player->getName()] = $player->getSkin();
+        $this->nametags[$player->getName()] = $player->getNametag();
     }
 
     public function removeFromGame(Player $player){
@@ -321,6 +326,21 @@ class Game implements Listener{
         unset($this->changeInv[$player->getName()]);
         $player->teleport($this->plugin->getServer()->getWorldManager()->getDefaultWorld()->getSpawnLocation());
         $this->removeScoreboard($player);
+        
+        if(isset($this->skins[$player->getName()])){  // just in case 
+        $player->setSkin($this->skins[$player->getName()]);
+        $player->sendSkin();
+        }
+        if(isset($this->nametags[$player->getName()])){  // just in case 
+        $player->setNametag($this->nametags[$player->getName()]);
+        }
+    }
+    
+    public function onPlayerChangeSkin(PlayerChangeSkinEvent $event) {
+        $player = $e->getPlayer();
+        if($this->isPlaying($player)){
+        	$event->cancel();
+        }
     }
 
     public function disconnectPlayer(Player $player, string $quitMsg = ""){
@@ -359,47 +379,37 @@ class Game implements Listener{
     }
 
     public function randomisePlayerNames(Player $initiatingPlayer) {
-        $gameTime = $this->task->gameTime;
-        $totalGameDuration = 5 * 60;
-
-        $shouldRandomize = (mt_rand(0, 1) == 1);
-    
-        if ($gameTime > 0 && $gameTime < $totalGameDuration && $shouldRandomize) {
-            $players = $this->players;
-            $totalPlayers = count($players);
-    
-            for ($i = $totalPlayers - 1; $i > 0; $i--) {
-                $j = mt_rand(0, $i);
-                $temp = $players[$i];
-                $players[$i] = $players[$j];
-                $players[$j] = $temp;
-            }
-    
-            foreach ($players as $index => $randomizedPlayer) {
-                $randomizedName = $players[($index + 1) % $totalPlayers]->getName();
-                $randomizedPlayer->setDisplayName($randomizedName);
-            }
-    
-            $this->randomizeCounter++;
-        }
-    }
-
-    public function randomisePlayerSkins() {
         $players = $this->players;
         $totalPlayers = count($players);
-    
-        for ($i = $totalPlayers - 1; $i > 0; $i--) {
-            $j = mt_rand(0, $i);
-            $temp = $players[$i];
-            $players[$i] = $players[$j];
-            $players[$j] = $temp;
+        $availableNames = [];
+
+        foreach ($players as $player) {
+            $availableNames[] = $player->getName();
         }
-    
-        foreach ($players as $index => $randomizedPlayer) {
-            $randomizedSkin = $players[($index + 1) % $totalPlayers]->getSkin();
-            $randomizedPlayer->setSkin($randomizedSkin);
+        shuffle($availableNames);
+        foreach ($players as $index => $player) {
+            $randomizedName = array_pop($availableNames);
+            $player->setNametag("§e> §f" . $randomizedName . " §e<");
         }
     }
+
+
+    public function randomisePlayerSkins() {
+    $players = $this->players;
+    $totalPlayers = count($players);
+    $availableSkins = [];
+    
+    foreach ($players as $player) {
+        $availableSkins[] = $player->getSkin();
+    }
+    shuffle($availableSkins);
+    foreach ($players as $index => $player) {
+        $randomizedSkin = array_pop($availableSkins);
+        $player->setSkin($randomizedSkin);
+        $player->sendSkin();
+       }
+   }
+
     
     public function giveRoles(){
         $innocents = $this->players;
@@ -950,7 +960,7 @@ class Game implements Listener{
                     $this->setItem(VanillaItems::GOLD_INGOT(), 8, $player);
                 }
 
-                if($player !== $this->getDetective()){
+                if($player !== $this->getDetective() OR $player !== $this->getMurderer()){
                     if($this->getGold($player) == $this->plugin->extras->get("MM-Bow-Gold-Required")){
                         if($this->isPlaying($player)){
                             $player->sendTitle("§a+1 Bow Shot!", "§eYou collected 10 gold and got an arrow!");
