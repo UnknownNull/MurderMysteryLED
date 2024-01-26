@@ -333,6 +333,7 @@ class Game implements Listener{
         }
         if(isset($this->nametags[$player->getName()])){  // just in case 
         $player->setNametag($this->nametags[$player->getName()]);
+        $player->setDisplayName($this->nametags[$player->getName()]);
         }
     }
     
