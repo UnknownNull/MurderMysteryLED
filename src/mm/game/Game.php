@@ -338,7 +338,7 @@ class Game implements Listener{
     }
     
     public function onPlayerChangeSkin(PlayerChangeSkinEvent $event) {
-        $player = $e->getPlayer();
+        $player = $event->getPlayer();
         if($this->isPlaying($player)){
         	$event->cancel();
         }
