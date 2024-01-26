@@ -390,6 +390,7 @@ class Game implements Listener{
         foreach ($players as $index => $player) {
             $randomizedName = array_pop($availableNames);
             $player->setNametag("§e> §f" . $randomizedName . " §e<");
+            $player->setDisplayName("§e> §f" . $randomizedName . " §e<");
         }
     }
 
