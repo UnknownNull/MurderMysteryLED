@@ -44,6 +44,8 @@ class SwordEntity extends Entity{
         parent::sendSpawnPacket($player);
         /** TEST BELOW */
         $this->updateMovement();
+        $this->updateMovement();
+        $this->updateMovement();
         /** TEST ABOVE */
         $pk = MobEquipmentPacket::create(
             $this->getId(),
