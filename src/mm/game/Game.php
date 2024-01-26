@@ -390,8 +390,8 @@ class Game implements Listener{
         shuffle($availableNames);
         foreach ($players as $index => $player) {
             $randomizedName = array_pop($availableNames);
-            $player->setNametag("§e> §f" . $randomizedName . " §e<");
-            $player->setDisplayName("§e> §f" . $randomizedName . " §e<");
+            $player->setNametag($randomizedName);
+            $player->setDisplayName($randomizedName);
         }
     }
 
@@ -814,6 +814,11 @@ public function openTeleporter(Player $player){
                 $spectator->sendMessage("§7Dead Chat " . $player->getName() . ">> " . $event->getMessage());
             }
         }
+        if($this->isPlaying($player)){
+	    foreach($this->players as $p){
+		$p->sendMessage($player->getName() . "§e >> §r" . $event->getName());    
+	    }	
+	}
     }
     
     public function killPlayer($player, $subtitle = "§eThe Murderer stabbed you!"){
