@@ -815,6 +815,7 @@ public function openTeleporter(Player $player){
             }
         }
         if($this->isPlaying($player)){
+	    $event->cancel();
 	    foreach($this->players as $p){
 		$p->sendMessage($player->getName() . "§e >> §r" . $event->getMessage());    
 	    }	
