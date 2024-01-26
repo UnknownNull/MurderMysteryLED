@@ -598,37 +598,36 @@ class Game implements Listener{
         $this->joinLobby($player);
     }
 
-    public function openTeleporter(Player $player){
-        $form = new SimpleForm(function(Player $player, $data = null){
-            $players = [];		
-            if($data === null){
-                return true;
-            }
-            foreach($this->players as $ingame){
-                $players[] = $ingame;
-            }
-            $players[$player->getName()] = $players;
-            $target = $players[$player->getName()][$data];
-			if($target instanceof Player){
-                if($this->isPlaying($target)){
-                    /** Get Targets Location rather than Position */
-                    $player->teleport($target->getLocation());
-                } else {
-                    $player->sendMessage("§cThis player is no longer in this game!");
-                }
-            } else {
-                $player->sendMessage("§cInvalid player!");
-            }
+public function openTeleporter(Player $player){
+    $form = new SimpleForm(function(Player $player, $data = null){
+        $players = [];		
+        if($data === null){
             return true;
-        });
-        $form->setTitle("§l§aTeleporter");
-        $form->setContent("§7Choose the player you want to spectate:");
-        foreach($this->players as $p){
-            $form->addButton($p->getName(), -1, $p->getName());
         }
-        $form->sendToPlayer($player);
-        return $form;
+        foreach($this->players as $ingame){
+            $players[] = $ingame;
+        }
+        $target = $players[$data];
+        if($target instanceof Player){
+            if($this->isPlaying($target)){
+                /** Get Targets Location rather than Position */
+                $player->teleport($target->getLocation());
+            } else {
+                $player->sendMessage("§cThis player is no longer in this game!");
+            }
+        } else {
+            $player->sendMessage("§cInvalid player!");
+        }
+        return true;
+    });
+    $form->setTitle("§l§aTeleporter");
+    $form->setContent("§7Choose the player you want to spectate:");
+    foreach($this->players as $p){
+        $form->addButton($p->getName(), -1, null, $p->getName()); // Add player names as options
     }
+    $form->sendToPlayer($player);
+    return $form;
+}
 
     public function onQuit(PlayerQuitEvent $event){
         $player = $event->getPlayer();
@@ -679,9 +678,7 @@ class Game implements Listener{
                $this->removeFromGame($player);
                break;
             case "§r§l§aTeleporter§r":
-                if($this->phase == 1){
-                    $this->openTeleporter($player);
-                }
+                $this->openTeleporter($player);
                break;
             case "§r§l§bStart Game§r":
                 // forgot logic? WIP
