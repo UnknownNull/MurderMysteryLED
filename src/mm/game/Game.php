@@ -811,13 +811,13 @@ public function openTeleporter(Player $player){
         if(isset($this->spectators[$player->getName()])){
             $event->cancel();
             foreach($this->spectators as $spectator){
-                $spectator->sendMessage("§7Dead Chat " . $player->getName() . ">> " . $event->getMessage());
+                $spectator->sendMessage("§7Dead Chat " . $player->getDisplayName() . ">> " . $event->getMessage());
             }
         }
         if($this->isPlaying($player)){
 	    $event->cancel();
 	    foreach($this->players as $p){
-		$p->sendMessage($player->getName() . "§e >> §r" . $event->getMessage());    
+		$p->sendMessage($player->getDisplayName() . "§e >> §r" . $event->getMessage());    
 	    }	
 	}
     }
