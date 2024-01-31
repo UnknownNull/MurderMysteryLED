@@ -225,7 +225,7 @@ class MurderMystery extends PluginBase implements Listener{
                 $sender->sendMessage($this->noPerms);
                 break;
             }
-            $this->spawnSword($sender);
+            $this->spawnSword($sender, $sender->getPosition()->asVector3());
         break;
 			    
 		case "quit":
@@ -564,7 +564,7 @@ class MurderMystery extends PluginBase implements Listener{
         }
     }
 
-    public function spawnSword(Player $player): void
+    public function spawnSword(Player $player, Vector $directionVector): void
     {
         $arena = $this->gamechooser->getRandomGame();
         $location = $player->getLocation();
