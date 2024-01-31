@@ -464,7 +464,7 @@ class MurderMystery extends PluginBase implements Listener{
         $form->addButton("Spawn");
         $form->addButton("Gold");
         $form->addButton("JoinSign");
-        $form->sendToPlayer($player);
+        $player->sendForm($form);
     }
 
     public function setupMap(Player $player): void {
@@ -495,7 +495,7 @@ class MurderMystery extends PluginBase implements Listener{
         $form->setTitle("Map - MM Setup");
         $form->addInput("Enter the world's name", "Enter the world's name");
         $form->addInput("Optional: Enter a different world's name (leave empty to use current world)", "Optional: Enter a different world's name");
-        $form->sendToPlayer($player);
+        $player->sendForm($form);
     }
     
 
