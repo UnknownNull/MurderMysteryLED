@@ -599,36 +599,36 @@ class Game implements Listener{
         $this->joinLobby($player);
     }
 
-public function openTeleporter(Player $player){
-    $form = new SimpleForm(function(Player $player, $data = null){
-        $players = [];		
-        if($data === null){
-            return true;
-        }
-        foreach($this->players as $ingame){
-            $players[] = $ingame;
-        }
-        $target = $players[$data];
-        if($target instanceof Player){
-            if($this->isPlaying($target)){
-                /** Get Targets Location rather than Position */
-                $player->teleport($target->getLocation());
-            } else {
-                $player->sendMessage("§cThis player is no longer in this game!");
+    public function openTeleporter(Player $player){
+        $form = new SimpleForm(function(Player $player, $data = null){
+            $players = [];		
+            if($data === null){
+                return true;
             }
-        } else {
-            $player->sendMessage("§cInvalid player!");
+            foreach($this->players as $ingame){
+                $players[] = $ingame;
+            }
+            $players[$player->getName()] = $players;
+            $target = $players[$player->getName()][$data];
+			if($target instanceof Player){
+                if($this->isPlaying($target)){
+                    $player->teleport($target->getLocation());
+                } else {
+                    $player->sendMessage("§cThis player is no longer in this game!");
+                }
+            } else {
+                $player->sendMessage("§cInvalid player!");
+            }
+            return true;
+        });
+        $form->setTitle("§l§aTeleporter");
+        $form->setContent("§7Choose the player you want to spectate:");
+        foreach($this->players as $p){
+            $form->addButton($p->getName(), -1, $p->getName());
         }
-        return true;
-    });
-    $form->setTitle("§l§aTeleporter");
-    $form->setContent("§7Choose the player you want to spectate:");
-    foreach($this->players as $p){
-        $form->addButton($p->getName(), -1, null, $p->getName()); // Add player names as options
+        $form->sendToPlayer($player);
+        return $form;
     }
-    $form->sendToPlayer($player);
-    return $form;
-}
 
     public function onQuit(PlayerQuitEvent $event){
         $player = $event->getPlayer();
@@ -682,7 +682,7 @@ public function openTeleporter(Player $player){
                 $this->openTeleporter($player);
                break;
             case "§r§l§bStart Game§r":
-                // forgot logic? WIP
+                $this->task->startTime = 5;
                 break;
             }
             /** ? */
@@ -1074,11 +1074,12 @@ public function openTeleporter(Player $player){
         }
     }
 
-    public function createSwordEntity(Player $player){
+    public function createSwordEntity(Player $player, Vector3 $directionVector){
+        $location = $player->getLocation();
         $sword = new SwordEntity(
-            $player->getLocation()
+            Location::fromObject($player->getEyePos(), $player->getWorld(), $location->yaw - 75, $location->pitch)
         );
-        $sword->setMotion($sword->getMotion()->multiply($this->plugin->extras->get("Throwable-Sword-Speed")));
+        $sword->setMotion($directionVector->multiply($this->plugin->getConfig()->get("Throwable-Sword-Speed")));
         $sword->setPose();
         $sword->setInvisible();
         $sword->spawnToAll();

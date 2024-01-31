@@ -19,6 +19,7 @@ use pocketmine\entity\EntityDataHelper;
 use pocketmine\entity\Human;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\world\World;
+use pocketmine\entity\Location;
 // $event
 use mm\utils\{GameChooser, Vector};
 use mm\entities\{NpcEntity, SwordEntity};
@@ -565,21 +566,18 @@ class MurderMystery extends PluginBase implements Listener{
 
     public function spawnSword(Player $player): void
     {
-       // WIP
-       $sword = new SwordEntity(
-          $player->getLocation(),
-          $player->getLocation()->getYaw() - 75,
-          $player->getLocation()->getPitch()
-       );
-    
-       $sword->setMotion($sword->getMotion()->multiply(1.4));
-       $sword->setPose();
-       $sword->setInvisible();
-       $sword->spawnToAll();
-
-       $arena = $this->gamechooser->getRandomGame();
-       $this->getScheduler()->scheduleRepeatingTask(new CollideTask($arena, $sword), 0);
-       $this->getScheduler()->scheduleDelayedTask(new DespawnSwordEntity($sword), 100);
+        $arena = $this->gamechooser->getRandomGame();
+        $location = $player->getLocation();
+        $sword = new SwordEntity(
+            Location::fromObject($player->getEyePos(), $player->getWorld(), $location->yaw - 75, $location->pitch)
+        );
+        $sword->setMotion($directionVector->multiply($this->plugin->getConfig()->get("Throwable-Sword-Speed")));
+        $sword->setPose();
+        $sword->setInvisible();
+        $sword->spawnToAll();
+        $this->plugin->getScheduler()->scheduleRepeatingTask(new CollideTask($arena, $sword), 0);
+        $this->plugin->getScheduler()->scheduleDelayedTask(new DespawnSwordEntity($sword), 100);
+        $this->cooldown[$player->getName()] = microtime(true) + 7;
     }    
 
     public function joinGame(Player $player){

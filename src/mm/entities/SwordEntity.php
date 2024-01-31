@@ -42,11 +42,6 @@ class SwordEntity extends Entity{
 
     protected function sendSpawnPacket(Player $player) : void{
         parent::sendSpawnPacket($player);
-        /** TEST BELOW */
-        $this->updateMovement();
-        $this->updateMovement();
-        $this->updateMovement();
-        /** TEST ABOVE */
         $pk = MobEquipmentPacket::create(
             $this->getId(),
             ItemStackWrapper::legacy(TypeConverter::getInstance()->coreItemStackToNet(VanillaItems::IRON_SWORD())),
